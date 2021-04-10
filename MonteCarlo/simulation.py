@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, '/home/testaovo/Scrivania/LABORATORIO/muon_decay')
+sys.path.insert(1, '/home/testaovo/Scrivania/LABORATORIO/muon_decay/LAB_Mu_Decay')
 
 import numpy
 import argparse 

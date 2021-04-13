@@ -56,7 +56,7 @@ for element in density_data_dict:
 
 
     #RANGE
-
+    stp_pwr_spline = interp1d(kin_ene, collision_stp_pwr, kind='cubic')
     est_range = numpy.full(len(kin_ene), 0.)
     for i in range(len(kin_ene)):
         est_range[i] = collision_range(kin_ene[i])
@@ -83,6 +83,8 @@ for element in density_data_dict:
     plt.ylim(0., 20.)
     plt.xlim(1., 1000.)
     plt.legend()
+
+
 
 
 

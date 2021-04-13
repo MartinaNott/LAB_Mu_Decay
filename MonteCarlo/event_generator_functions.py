@@ -1,5 +1,6 @@
 import sys
 sys.path.insert(1, '/home/testaovo/Scrivania/LABORATORIO/muon_decay/LAB_Mu_Decay')
+
 import numpy
 import scipy.integrate as integrate
 from scipy.integrate import quad
@@ -7,7 +8,6 @@ from scipy.interpolate import interp1d
 
 import geometry
 
-MUON_MASS = 105.658 #MeV
 
 def cosmic_rays_angle_generator(num_events, pdf):      
   theta = numpy.linspace(-numpy.pi/2, numpy.pi/2, 200) 
@@ -24,7 +24,7 @@ def cosmic_rays_angle_generator(num_events, pdf):
   phi_muon = numpy.random.uniform(0, 2 * numpy.pi, num_events )   
   return theta_muon, phi_muon
 
-def cosmic_rays_energy_generator(num_events, pdf, e_min, e_max, *args): 
+def energy_generator(num_events, mass, pdf, e_min, e_max, *args): 
   e = numpy.linspace(e_min, e_max, 1000)  
   cdf_y  = numpy.full(len(e), 0.)
   for i in range(len(e)):
@@ -36,10 +36,10 @@ def cosmic_rays_energy_generator(num_events, pdf, e_min, e_max, *args):
   ppf_spline = interp1d(cdf_y, e)         
   x = numpy.random.uniform(0., 1., num_events)
   E_kin = ppf_spline(x)  
-  E_muon = E_kin + MUON_MASS
-  P_muon = numpy.sqrt( E_muon**2 - MUON_MASS **2)
-  beta_muon = P_muon / E_muon
-  return E_muon, P_muon, beta_muon
+  E_particle = E_kin + mass
+  P_particle = numpy.sqrt( E_particle**2 - mass **2)
+  beta_particle = P_particle / E_particle
+  return E_particle, P_particle, beta_particle
 
 def position_on_scintillator_generator(num_events, l = geometry.L, w = geometry.W): 
   x_s = numpy.random.uniform(0., l, num_events)

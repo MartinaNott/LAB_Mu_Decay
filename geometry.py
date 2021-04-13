@@ -1,6 +1,5 @@
 import numpy
 
-c = 29979245800  #cm/s
 
 #Large scintillators dimensions
 L = 50. #cm

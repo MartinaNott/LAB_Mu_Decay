@@ -16,23 +16,27 @@ def spectrum(x, index, x_drop, drop_width = 1.):
     return positive_erf(x, x_drop, drop_width)  * power_law(x, index)
 
 
+def electron_spectrum(E_electron ): 
+    x = 2. * E_electron/ costants.MUON_MASS
+    return (3. - 2. * x ) * x**2
+
     
 #Fit functions:   
 def line(x, m , q):
-  return m * x +q
+    return m * x +q
 
 def proportional(x, m ):
-  return m * x
+    return m * x
 
 def costant(x,  q): 
-  q = numpy.ones(len(x))*q
-  return q
+    q = numpy.ones(len(x))*q
+    return q
 
 def gauss(x, norm, mean, sigma): 
-  return (norm) * numpy.exp(-0.5 * ((x - mean)/sigma )**2)
+    return (norm) * numpy.exp(-0.5 * ((x - mean)/sigma )**2)
   
 def two_gauss(x, a, norm, mean1, sigma1, mean2, sigma2):
-  return a * gauss(x, norm, mean1, sigma1) + (1.-a) * gauss(x, norm, mean2, sigma2)
+    return a * gauss(x, norm, mean1, sigma1) + (1.-a) * gauss(x, norm, mean2, sigma2)
 
 def exponential(x, a, m): 
-  return a * numpy.exp(-x * m)    
+    return a * numpy.exp(-x * m)    

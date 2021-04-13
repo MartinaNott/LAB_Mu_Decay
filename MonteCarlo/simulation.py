@@ -9,6 +9,7 @@ import time
 import event_generator_functions
 import geometry
 import functions
+import constants
 
 description = ''
 options_parser = argparse.ArgumentParser(description = description)
@@ -23,7 +24,7 @@ if __name__ == '__main__' :
     N = options['number_events']
     output_file_events = options['output_file']
 
-    E, P, beta = event_generator_functions.cosmic_rays_energy_generator(N, functions.spectrum, 1., 1.e5, -2.7, 300., 50.)        
+    E, P, beta = event_generator_functions.energy_generator(N, constants.MUON_MASS, functions.spectrum, 1., 1.e5, -2.7, 300., 50.)        
     theta, phi = event_generator_functions.cosmic_rays_angle_generator(N, functions.dist_theta)   
     x_start, y_start = event_generator_functions.position_on_scintillator_generator(N, l = geometry.L, w = geometry.W)
     x_stop, y_stop, z = event_generator_functions.cosmic_rays_propagation(x_start, y_start, theta, phi, h = geometry.H, s_position = geometry.position)

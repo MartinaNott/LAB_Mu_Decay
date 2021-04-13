@@ -1,15 +1,18 @@
+import sys
+sys.path.insert(1, '/home/testaovo/Scrivania/LABORATORIO/muon_decay/LAB_Mu_Decay')
+
 import numpy
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
+
+import constants 
 
 LEAD_DENSITY = 11.34 # g/cm^3
 ALUMINIUM_DENSITY = 2.7 # g/cm^3
 IRON_DENSITY = 7.874 # g/cm^3
 CARBON_DENSITY = 2. # g/cm^3
 
-MUON_MASS = 105.658 # MeV/c^2
-ELECTRON_MASS = 0.511 # MeV/c^2
 
 def inverse_stp_pwr(x):
     return 1./stp_pwr_spline(x)
@@ -40,7 +43,7 @@ for element in density_data_dict:
     ene_grid = numpy.logspace(-2, 3., 201)
     plt.plot(ene_grid, stp_pwr_spline(ene_grid), '-b', label = 'electron')
 
-    muon_kin_ene = kin_ene *  MUON_MASS / ELECTRON_MASS
+    muon_kin_ene = kin_ene *  constants.MUON_MASS / constants.ELECTRON_MASS
     plt.plot(muon_kin_ene, collision_stp_pwr, '*')
     stp_pwr_spline_muon = interp1d(muon_kin_ene, collision_stp_pwr, kind='cubic')
     ene_grid_muon = numpy.logspace(numpy.log10(2.1), numpy.log10(20000), 201)
@@ -85,6 +88,11 @@ for element in density_data_dict:
     plt.legend()
 
 
+    output_file = 'range_%s.txt' % element
+    header ='kin_ene, range_e, muon_kin_ene, range_mu\n' 
+    fmt = ['%.4f', '%.4f', '%.4f', '%.4f']
+    numpy.savetxt(output_file, numpy.transpose([kin_ene, csda_range/density, muon_kin_ene, est_muon_range]) , fmt=fmt, header=header)
+    print("Output file saved!\n\n")   
 
 
 

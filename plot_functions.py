@@ -25,6 +25,7 @@ def fit_legend(param_values, param_errors, param_names, param_units, chi2, ndof)
   legend += ("$\chi^2$/d.o.f.=%.2f/%d "% (chi2, ndof))
   return legend
 
+
 def plot_histogram(x, xlabel, ylabel, bins = None, range = None, title = '', legend = '', fmt = '.b', as_scatter = False):
   if(bins is None ): 
     bins = int(numpy.sqrt(len(x)))
@@ -42,12 +43,13 @@ def plot_histogram(x, xlabel, ylabel, bins = None, range = None, title = '', leg
     n = n[mask]
     dn = errors[mask]
     plt.errorbar(new_bins, n, yerr = dn, fmt = fmt, label = legend)
-
+    set_plot(xlabel, ylabel, title = title)
+    return new_bins, n, dn  
   else:
     n, bins, patches = plt.hist(bins[1:],  weights = n, bins = bins, label = legend, alpha = 0.4)
-      
-  set_plot(xlabel, ylabel, title = title)
-  return new_bins, n, dn
+    dn = numpy.sqrt(n)
+    set_plot(xlabel, ylabel, title = title)
+    return bins, n, dn
 
 
 def fit_histogram(bins, n, dn, param_names, param_units, fit_function = functions.gauss, p0 = None): 

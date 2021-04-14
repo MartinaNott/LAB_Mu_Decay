@@ -21,10 +21,13 @@ for scintillator in data_dict:
     Vth, counts, time = numpy.loadtxt(data_file, unpack=True)
     Vss = 1700. #V
     title = '%s - %d V e %f s' % (date, Vss, time[0])
-             
+    rate = counts/time
     dcounts = numpy.sqrt(counts)
-    plt.errorbar(Vth, counts, yerr = dcounts, label = scintillator)
-    plot_functions.set_plot('$V_{th}$', 'Counts', title = title)
+    drate = dcounts/time
+    plt.errorbar(Vth, rate, yerr = drate, label = scintillator)
+    plot_functions.set_plot('$V_{th}$ [mV]', 'Rate [Hz]', title = title)
+   
+
 
 """
 "plt.figure()

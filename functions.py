@@ -2,6 +2,8 @@ import numpy
 from scipy.interpolate import interp1d
 import scipy.special
 
+import constants
+
 #Distributions for the generation of the events:
 def dist_theta(theta):
   return (numpy.cos(theta))**2
@@ -17,9 +19,13 @@ def spectrum(x, index, x_drop, drop_width = 1.):
 
 
 def electron_spectrum(E_electron ): 
-    x = 2. * E_electron/ costants.MUON_MASS
+    x = 2. * E_electron/ constants.MUON_MASS
     return (3. - 2. * x ) * x**2
 
+
+def muon_spectrum(E_muon): 
+    return 0.14 * E_muon**2.7 * 0.001 * (1/( 1 + 1.1 * E_muon/0.115 ) + 0.054/(1 + 1.1 * E_muon/0.850))
+    
     
 #Fit functions:   
 def line(x, m , q):
@@ -40,3 +46,6 @@ def two_gauss(x, a, norm, mean1, sigma1, mean2, sigma2):
 
 def exponential(x, a, m): 
     return a * numpy.exp(-x * m)    
+
+def two_expo(x, a_short, m_short, a_long, m_long): 
+    return  a_short * numpy.exp(-x * m_short) + a_long * numpy.exp(-x * m_long)        

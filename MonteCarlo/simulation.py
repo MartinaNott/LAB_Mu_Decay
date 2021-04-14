@@ -24,8 +24,8 @@ if __name__ == '__main__' :
     N = options['number_events']
     output_file_events = options['output_file']
 
-    E, P, beta = event_generator_functions.energy_generator(N, constants.MUON_MASS, functions.spectrum, 1., 1.e5, -2.7, 300., 50.)        
-    theta, phi = event_generator_functions.cosmic_rays_angle_generator(N, functions.dist_theta)   
+    E_kin = event_generator_functions.energy_generator(N, constants.MUON_MASS, functions.spectrum, 1., 1.e5, -2.7, 300., 50.)        
+    theta, phi = event_generator_functions.angle_generator(N, functions.dist_theta)   
     x_start, y_start = event_generator_functions.position_on_scintillator_generator(N, l = geometry.L, w = geometry.W)
     x_stop, y_stop, z = event_generator_functions.cosmic_rays_propagation(x_start, y_start, theta, phi, h = geometry.H, s_position = geometry.position)
     f = event_generator_functions.check_particle_position(x_stop, y_stop, l = geometry.L, w = geometry.W, s_position = geometry.position) 
@@ -40,7 +40,7 @@ if __name__ == '__main__' :
     if(output_file_events.endswith('.txt')): 
       header ='%s \nE[MeV], P [MeV], beta, x1[m], y1[m], theta, phi, x3[m], y3[m], flag\n' % datetime.datetime.now()
       fmt = ['%.4f', '%.4f', '%.4f', '%.4f', '%.6f', '%.2f', '%.2f', '%.4f', '%.6f', '%d']
-      numpy.savetxt(output_file_events, numpy.transpose([E[mask], P[mask], beta[mask], x_start[mask], y_start[mask], theta[mask], phi[mask], x_stop[mask], y_stop[mask], f[mask]]) , fmt=fmt, header=header)
+      numpy.savetxt(output_file_events, numpy.transpose([E_kin[mask], P[mask], beta[mask], x_start[mask], y_start[mask], theta[mask], phi[mask], x_stop[mask], y_stop[mask], f[mask]]) , fmt=fmt, header=header)
       print("Output file saved!\n\n")   
     print("Time of execution: %s seconds " % (time.time() - start_time))
            

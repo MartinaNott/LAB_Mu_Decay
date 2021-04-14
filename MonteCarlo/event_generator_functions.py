@@ -5,12 +5,16 @@ import numpy
 import scipy.integrate as integrate
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
 
 import geometry
 
 
-def cosmic_rays_angle_generator(num_events, pdf):      
-  theta = numpy.linspace(-numpy.pi/2, numpy.pi/2, 200) 
+def angle_generator(num_events, pdf, delta_2pi = False):      
+  if delta_2pi is True: 
+    theta = numpy.linspace(-numpy.pi, numpy.pi, 200)    
+  else:
+    theta = numpy.linspace(-numpy.pi/2, numpy.pi/2, 200) 
   cdf_y  = []
   for i in range(len(theta)):
     y, rest = quad(pdf, theta[0], theta[i])  
@@ -20,11 +24,11 @@ def cosmic_rays_angle_generator(num_events, pdf):
   theta = theta[unique_indices] 
   funzione = interp1d(cdf_y, theta)       
   x = numpy.random.uniform(0., 1., num_events)
-  theta_muon = funzione(x)
-  phi_muon = numpy.random.uniform(0, 2 * numpy.pi, num_events )   
-  return theta_muon, phi_muon
+  theta_particle = funzione(x)
+  phi_particle = numpy.random.uniform(0, 2 * numpy.pi, num_events )   
+  return theta_particle, phi_particle
 
-def energy_generator(num_events, mass, pdf, e_min, e_max, *args): 
+def energy_generator(num_events, pdf, e_min, e_max, *args): 
   e = numpy.linspace(e_min, e_max, 1000)  
   cdf_y  = numpy.full(len(e), 0.)
   for i in range(len(e)):
@@ -36,17 +40,30 @@ def energy_generator(num_events, mass, pdf, e_min, e_max, *args):
   ppf_spline = interp1d(cdf_y, e)         
   x = numpy.random.uniform(0., 1., num_events)
   E_kin = ppf_spline(x)  
+  return E_kin
+
+def p_relation(E_kin , mass ): 
   E_particle = E_kin + mass
   P_particle = numpy.sqrt( E_particle**2 - mass **2)
-  beta_particle = P_particle / E_particle
-  return E_particle, P_particle, beta_particle
+  return P_particle
 
+def beta(P_particle, E_particle): 
+  beta_particle = P_particle / E_particle  
+  return beta_particle
+  
+def gamma(beta = -1, E_particle = -1 , mass = -1):   
+  if (beta != -1) :
+    gamma = numpy.sqrt(1/(1 - beta**2))  
+    return gamma 
+  if (E_particle != -1):
+    gamma = E_particle/mass 
+    return gamma   
+    
 def position_on_scintillator_generator(num_events, l = geometry.L, w = geometry.W): 
   x_s = numpy.random.uniform(0., l, num_events)
   y_s = numpy.random.uniform(0., w, num_events)
   return x_s, y_s
   
-
 def cosmic_rays_propagation(x_s, y_s, theta, phi, h = geometry.H, s_position = geometry.position):
   z = h + s_position[2]
   x_new_s = x_s + numpy.cos(phi) * numpy.tan(theta) * z 
@@ -60,4 +77,15 @@ def check_particle_position(x_s, y_s, l = geometry.L, w = geometry.W, s_position
   mask = mask_x * mask_y             
   return mask
 
-
+def energy_range_functions(data_file): 
+  electron_kin_ene, electron_ranges_in_material, muon_kin_ene, muon_ranges_in_material = numpy.loadtxt(data_file, unpack=True)  
+  range_spline_electron = interp1d(electron_kin_ene, electron_ranges_in_material, kind='cubic')
+  range_spline_muon = interp1d( muon_kin_ene, muon_ranges_in_material, kind='cubic')
+  return range_spline_muon, range_spline_electron
+  
+def propagation_in_material(range_lenght, theta, phi, x_start = 0., y_start = 0., z_start = 0.): 
+  x_stop = x_start + range_lenght * numpy.sin(theta) * numpy.cos(phi) 
+  y_stop = y_start + range_lenght * numpy.sin(theta) * numpy.sin(phi)
+  z_stop = z_start + range_lenght * numpy.cos(theta)  
+  return x_stop, y_stop, z_stop
+  

@@ -1,0 +1,8 @@
+#coin12, cambio scintillatore 1; 2 a 1700 v
+#V[V] counts time[s]
+1700 6 63
+1750 19 60
+1800 125 68
+1850 226 61
+1900 259 71
+1950 333 61

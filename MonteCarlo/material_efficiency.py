@@ -15,22 +15,20 @@ import functions
 import constants
 import plot_functions
 
-
+save_fig = True
 N = 1000000
-z_material = (0., 30.)
+z_material = (0., 100.)
 n_bin = 300
 material_depth = numpy.linspace(*z_material, n_bin) 
 
 element_dict = {'lead' : '../EnergyLoss/range_lead.txt',
-                     'aluminium' : '../EnergyLoss/range_aluminium.txt' ,
-                     'iron' : '../EnergyLoss/range_iron.txt',
-                     'carbon' : '../EnergyLoss/range_carbon.txt'}
+                'aluminium' : '../EnergyLoss/range_aluminium.txt' ,
+                'iron' : '../EnergyLoss/range_iron.txt',
+                'carbon' : '../EnergyLoss/range_carbon.txt'}
                      
 #E_kin_mu = event_generator_functions.energy_generator(N, functions.spectrum, 1., 1.e5, -2.7, 300., 50.) 
-E_kin_mu = event_generator_functions.energy_generator(N, functions.muon_spectrum, 1., 1000) 
-#E_kin_mu = numpy.random.uniform(3, 100, N )   
-#plt.figure()
-#plt.hist(E_kin_mu, range = (0., 1000), bins = 100)
+#E_kin_mu = event_generator_functions.energy_generator(N, functions.muon_spectrum, 1., 1000) 
+E_kin_mu = numpy.random.uniform(3, 1000, N )   
 
 theta_mu, phi_mu = event_generator_functions.angle_generator(N, functions.dist_theta)   
 
@@ -65,18 +63,23 @@ for element in element_dict:
     epsilon_muon = numpy.array(epsilon_muon) 
     epsilon = epsilon_electron * epsilon_muon
     
-    
-    label_ele = 'e in %s' % element
-    label_mu = 'mu in %s' % element
+
+    title = '%s sp. piatto (3-1000 Mev)' % element    
     plt.figure()
-    plt.plot(material_depth, epsilon_electron, '-r', label = label_ele )
-    plt.plot(material_depth, epsilon_muon, '-b', label = label_mu)
-    plot_functions.set_plot("material_depth [cm]", "N_stopped/N_tot", title = element )
+    plt.plot(material_depth, epsilon_electron, '-r', label = 'electron' )
+    plt.plot(material_depth, epsilon_muon, '-b', label = 'muon')
+    plot_functions.set_plot("material_depth [cm]", "$N_i$/$N_{tot}$", title = title )
+    
+    if save_fig ==True:    
+      plt.savefig('mu_ele_epsilon_%s.pdf' % element, format = 'pdf')    
     
     plt.figure()
     plt.plot(material_depth, epsilon, '-')
-    plot_functions.set_plot("material_depth [cm]", "epsilon", title = element )
+    plot_functions.set_plot("material_depth [cm]", "$\epsilon$", title = title )
     
+    if save_fig ==True:    
+      plt.savefig('epsilon_%s.pdf' % element, format = 'pdf')    
+
 
 plt.ion()
 plt.show()

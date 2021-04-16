@@ -25,10 +25,10 @@ def collision_range_muon(initial_kin_energy):
     y, abserr = quad(inverse_stp_pwr, 2.1, initial_kin_energy )
     return y #g/cm^2
 
-density_data_dict = {'lead' : ('estar_data_lead.txt', LEAD_DENSITY)}
-                     #'aluminium' : ('estar_data_aluminium.txt', ALUMINIUM_DENSITY) ,
-                     #'iron' : ('estar_data_iron.txt', IRON_DENSITY),
-                     #'carbon' : ('estar_data_carbon.txt', CARBON_DENSITY)}
+density_data_dict = {'lead' : ('estar_data_lead.txt', LEAD_DENSITY),
+                     'aluminium' : ('estar_data_aluminium.txt', ALUMINIUM_DENSITY) ,
+                     'iron' : ('estar_data_iron.txt', IRON_DENSITY),
+                     'carbon' : ('estar_data_carbon.txt', CARBON_DENSITY)}
 
 for element in density_data_dict:
     data_file = density_data_dict[element][0]
@@ -78,7 +78,7 @@ for element in density_data_dict:
     plt.plot(kin_ene, csda_range, 'r-', label = 'range e (total)')
     plt.plot(kin_ene, est_range, 'r--', label = 'range e (collision)')
     plt.plot(muon_kin_ene, est_muon_range, 'b-', label = 'range mu (collision)')
-    plt.xscale('log')
+    #plt.xscale('log')
     plt.xlabel("Kinetic energy [MeV]", fontsize=14)
     plt.ylabel("Range [cm]", fontsize=14)
     plt.yticks(fontsize=14, rotation=0)

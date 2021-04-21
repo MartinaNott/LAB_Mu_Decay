@@ -24,7 +24,7 @@ for scintillator in data_dict:
     dcounts = numpy.sqrt(counts)
     drate = dcounts/time
     plt.errorbar(Vss, rate, yerr = drate, label = scintillator)
-    plot_functions.set_plot('$V_{th}$ [mV]', 'Rate [Hz]', title = title)
+    plot_functions.set_plot('V [V]', 'Rate [Hz]', title = title)
    
 plt.figure()
 for scintillator in data_dict:
@@ -36,7 +36,7 @@ for scintillator in data_dict:
     dcounts = numpy.sqrt(counts)
     drate = dcounts/time
     plt.errorbar(Vss, rate, yerr = drate, label = scintillator)
-    plot_functions.set_plot('$V_{th}$ [mV]', 'Rate [Hz]', title = title)
+    plot_functions.set_plot('V [V]', 'Rate [Hz]', title = title)
 
 date = '20/04/21'
 plt.figure()
@@ -49,7 +49,7 @@ for scintillator in data_dict:
     dcounts = numpy.sqrt(counts)
     drate = dcounts/time
     plt.errorbar(Vss, rate, yerr = drate, label = scintillator)
-    plot_functions.set_plot('$V_{th}$ [mV]', 'Rate [Hz]', title = title)
+    plot_functions.set_plot('V [V]', 'Rate [Hz]', title = title)
 
 plt.figure()
 for scintillator in data_dict:
@@ -61,7 +61,7 @@ for scintillator in data_dict:
     dcounts = numpy.sqrt(counts)
     drate = dcounts/time
     plt.errorbar(Vss, rate, yerr = drate, label = scintillator)
-    plot_functions.set_plot('$V_{th}$ [mV]', 'Rate [Hz]', title = title)
+    plot_functions.set_plot('V [V]', 'Rate [Hz]', title = title)
             
 plt.ion()
 plt.show()

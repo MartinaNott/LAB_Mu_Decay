@@ -110,8 +110,8 @@ for element in element_dict:
     plt.ylim(-0.1, 1.1)
     plot_functions.set_plot("material_depth [cm]", "$\$", title = title )
     
-    #if save_fig ==True:    
-    #  plt.savefig('epsilon_%s.pdf' % element, format = 'pdf')    
+    if save_fig ==True:    
+      plt.savefig('epsilon_%s.pdf' % element, format = 'pdf')    
 
 
 

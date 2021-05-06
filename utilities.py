@@ -70,4 +70,14 @@ def make_opt_string(opt, pcov, s = '', s_f = ''):
   return string  
   
 
+def mask_array(channel, time, channel_start, channel_stop):   
+  mask_channel =  (channel[:-1] == channel_start) * (channel[1:] == channel_stop)
+  index = numpy.where(mask_channel)
+  channel_diff = numpy.ediff1d(channel)
+  time_diff = numpy.ediff1d(time)
+  channel_diff = channel_diff[index]
+  time_diff = time_diff[index]    
+  print("CHSTART: %d, CHSTOP: %d, found %d events: " % (channel_start, channel_stop, mask_channel.sum()))
+  return index, channel_diff, time_diff
+  
   

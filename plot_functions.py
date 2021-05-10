@@ -26,12 +26,12 @@ def fit_legend(param_values, param_errors, param_names, param_units, chi2, ndof)
   return legend
 
 
-def plot_histogram(x, xlabel, ylabel, bins = None, range = None, title = '', legend = '', fmt = '.b', as_scatter = False):
-  if(bins is None ): 
-    bins = int(numpy.sqrt(len(x)))
+def plot_histogram(x, xlabel, ylabel, n_bins = None, range = None, title = '', legend = '', fmt = '.b', as_scatter = False):
+  if(n_bins is None ): 
+    n_bins = int(numpy.sqrt(len(x)))
   if (range is None):
    range = (x.min(), x.max()) 
-  n, bins = numpy.histogram(x,  bins = bins, range = range)
+  n, bins = numpy.histogram(x,  bins = n_bins, range = range)
   
   if (as_scatter is True):
     errors = numpy.sqrt(n)
@@ -44,7 +44,7 @@ def plot_histogram(x, xlabel, ylabel, bins = None, range = None, title = '', leg
     dn = errors[mask]
     plt.errorbar(new_bins, n, yerr = dn, fmt = fmt, label = legend)
     set_plot(xlabel, ylabel, title = title)
-    return new_bins, n, dn  
+    return new_bins, n, dn
   else:
     n, bins, patches = plt.hist(bins[1:],  weights = n, bins = bins, label = legend, alpha = 0.4)
     dn = numpy.sqrt(n)
@@ -52,17 +52,23 @@ def plot_histogram(x, xlabel, ylabel, bins = None, range = None, title = '', leg
     return bins, n, dn
 
 
-def fit_histogram(bins, n, dn, param_names, param_units, fit_function = functions.gauss, p0 = None): 
-  #p0 = [len(x), numpy.mean(x), numpy.std(x)]
-  opt, pcov = curve_fit(fit_function, bin_centers, n, sigma = dn, p0 = p0)   
-  chi2 = (n - fit_functions.gauss(bins, *opt))**2 / dn**2
+def fit_histogram(bins, n, dn, param_names, param_units, fit_function = functions.gauss, p0 = None, bounds = None, x_min = -numpy.inf, x_max = numpy.inf): 
+  mask = (bins > x_min ) * (bins < x_max)
+  bins = bins[mask]
+  n = n[mask]
+  dn = dn[mask]
+  
+  opt, pcov = curve_fit(fit_function, bins, n, sigma = dn, p0 = p0, bounds = bounds)   
+  chi2 = (n - fit_function(bins, *opt))**2 / dn**2
   chi2 = chi2.sum()
-  ndof = len(n)-len(opt)
-  legend = fit_legend(opt, numpy.sqrt(numpy.diagonal(pcov)[0])  , param_names, param_units, chi2, ndof)
+  ndof = len(n)-len(opt)  
+  
+  legend = fit_legend(opt, numpy.sqrt(pcov.diagonal())  , param_names, param_units, chi2, ndof)
   bin_grid = numpy.linspace(bins.min(), bins.max(), 1000)  
   plt.plot(bin_grid, fit_function(bin_grid, *opt), '-r', label = legend)        
   plt.legend() 
-  return
+  print("LEGENDDD", legend)
+  return 
   
 def scatter_plot(x, y, xlabel, ylabel, title = ''):
   plt.figure()

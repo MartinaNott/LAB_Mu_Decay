@@ -30,6 +30,16 @@ def decimal_power(val):
     return int(numpy.log10(val + sys.float_info.epsilon)) - 1 * (val < 1.)
 
 
+def format_value(value, precision=3):
+    """Format a number with a reasonable precision
+    """
+    if isinstance(value, str):
+        return value
+    else:
+        fmt = '%%.%dg' % precision
+        return fmt % value
+
+
 def format_value_error(value, error, pm='+/-', max_dec_places=6):
     """Format a measurement with the proper number of significant digits.
     """

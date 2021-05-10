@@ -44,8 +44,8 @@ def gauss(x, norm, mean, sigma):
 def two_gauss(x, a, norm, mean1, sigma1, mean2, sigma2):
     return a * gauss(x, norm, mean1, sigma1) + (1.-a) * gauss(x, norm, mean2, sigma2)
 
-def exponential(x, a, m): 
-    return a * numpy.exp(-x * m)    
+def exponential(x, a, m, costant): 
+    return a * numpy.exp(-x * m) + costant
 
-def two_expo(x, a_short, m_short, a_long, m_long): 
-    return  a_short * numpy.exp(-x * m_short) + a_long * numpy.exp(-x * m_long)        
+def two_expo(x, a_short, m_short, a_long, m_long, costant): 
+    return  a_short * numpy.exp(- x / m_short) + a_long * numpy.exp(- x / m_long)  + costant      

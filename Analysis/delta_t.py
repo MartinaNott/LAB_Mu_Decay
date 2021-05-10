@@ -43,12 +43,21 @@ if __name__ == '__main__' :
     p0 = [0.05, 0.88, 0.02, 2.2, 0.008]
     bounds =  (0.045, 0.75, 0., 2., 0.), (0.06, 1.0, 1., 2.5 , 1.)
     channel_diff, time_diff = plot_channel_histogram(ch, time, 1, 4, fit_function = functions.two_expo, param_names = param_names, param_units = param_units, p0 = p0 , bounds = bounds, x_min = 0.5)
-
+    
+    
+    
     p0 = [0.05, 0.88, 0.02, 2.2, 0.008]
     bounds =  (0., 0.75, 0., 1.52, 0.), (1., 1.5, 1., 2.5 , 0.009)
-    channel_diff, time_diff = plot_channel_histogram(ch, time, 1, 3, fit_function = functions.two_expo, param_names = param_names, param_units = param_units, p0 = p0, bounds = bounds, x_min = 0.2) 
-
+    channel_diff, time_diff2 = plot_channel_histogram(ch, time, 1, 3, fit_function = functions.two_expo, param_names = param_names, param_units = param_units, p0 = p0, bounds = bounds, x_min = 0.2) 
     
+    
+    time_diff = numpy.concatenate(time_diff,time_diff2)
+    plt.figure()
+    title = 'start:%d, stop:%d' %(channel_start, channel_stop)
+    legend = '%d' % len(channel_diff)
+    bins, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = 120, range = (0., 20.), title = title, legend = legend, fmt = '.b', as_scatter = True) 
+      
+    plot_functions.fit_histogram(bins, n, dn, param_names, param_units, fit_function = two_expo, p0 = p0, bounds = bounds, x_min = 0.2)    
     
 
 

@@ -90,5 +90,19 @@ def mask_array(channel, time, channel_start, channel_stop):
   time_diff = time_diff[index]    
   print("CHSTART: %d, CHSTOP: %d, found %d events: " % (channel_start, channel_stop, mask_channel.sum()))    
   return index, channel_diff, time_diff
-  
-  
+ 
+ 
+def find_hv_bursts(ch):
+    ch_diff = numpy.ediff1d(ch)
+    mask = (ch[1:] > 1) * (ch_diff == 0)
+    print("HV burst: \n", numpy.where(mask)[0])  
+    return 
+
+def remove_hv_bursts(line_inf, line_sup, mask): 
+    mask[line_inf: line_sup] = False
+    return mask 
+    
+    
+    
+    
+    

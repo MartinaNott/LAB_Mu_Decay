@@ -1,5 +1,6 @@
 import numpy
 import sys
+from scipy.stats import norm
 
 import geometry
  
@@ -102,7 +103,12 @@ def remove_hv_bursts(line_inf, line_sup, mask):
     mask[line_inf: line_sup] = False
     return mask 
     
-    
+def log_likelihood(x, y, sigma, model, *model_params):
+    y_pred = model(x, *model_params)
+    return numpy.sum(numpy.log(norm.pdf(y, loc=y_pred, scale=sigma)))
+
+def ll_ratio_test_stat(loglh_alt, loglh_null):
+    return -2 * (loglh_null - loglh_alt)    
     
     
     

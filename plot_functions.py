@@ -65,10 +65,10 @@ def fit_histogram(bins, n, dn, param_names, param_units, fit_function = function
   
   legend = fit_legend(opt, numpy.sqrt(pcov.diagonal())  , param_names, param_units, chi2, ndof)
   bin_grid = numpy.linspace(bins.min(), bins.max(), 1000)  
-  plt.plot(bin_grid, fit_function(bin_grid, *opt), '-r', label = legend)        
+  plt.plot(bin_grid, fit_function(bin_grid, *opt), label = legend)        
   plt.legend() 
-  print("LEGENDDD", legend)
-  return 
+  print("LEGEND:", legend)
+  return opt, pcov
   
 def scatter_plot(x, y, xlabel, ylabel, title = ''):
   plt.figure()

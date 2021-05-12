@@ -93,9 +93,9 @@ def mask_array(channel, time, channel_start, channel_stop):
   return index, channel_diff, time_diff
  
  
-def find_hv_bursts(ch):
+def find_hv_bursts(ch, ch_min):
     ch_diff = numpy.ediff1d(ch)
-    mask = (ch[1:] > 1) * (ch_diff == 0)
+    mask = (ch[1:] > ch_min) * (ch_diff == 0)
     print("HV burst: \n", numpy.where(mask)[0])  
     return 
 

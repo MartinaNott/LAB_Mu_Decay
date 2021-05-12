@@ -32,10 +32,11 @@ if __name__ == '__main__' :
     channel_selected = options['channel']
 
     ch, time = numpy.loadtxt(data_file, unpack=True)       
-    utilities.find_hv_bursts(ch)
+    utilities.find_hv_bursts(ch, 1)
 
-    ch_mask = ch >= channel_selected
-    plot_channel_in_time(ch_mask)
+    if channel_selected is not None: 
+        ch_mask = ch >= channel_selected
+        plot_channel_in_time(ch_mask)
     
     if boundaries is not None: 
         line_inf, line_sup = numpy.loadtxt(boundaries, unpack=True)       

@@ -16,7 +16,7 @@ def plot_channel_histogram(ch, time, channel_start, channel_stop, fit_function =
     
     title = 'start:%d, stop:%d' %(channel_start, channel_stop)
     legend = '%d' % len(channel_diff)
-    bins, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = 100, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)      
+    bins, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = 80, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)      
     if fit_function is not None:
         opt, pcov = plot_functions.fit_histogram(bins, n, dn, param_names, param_units, fit_function = fit_function, p0 = p0, bounds = bounds, x_min = x_min)
         l_likelihood = utilities.log_likelihood(bins, n, dn, fit_function, *opt)
@@ -43,15 +43,16 @@ if __name__ == '__main__' :
     ch_stop_up = options['ch_stop_up']
     ch_stop_down = options['ch_stop_down']        
     ch, time = numpy.loadtxt(data_file, unpack=True)
-
+    
+    
     param_names_2exp = ['norm', 'fraction', 'm_short', 'm_long', 'costant']
     param_units_2exp = ['$\mu ^-1$s', '', '$\mu$s', '$\mu$s', '$\mu ^-1$s']  
     param_names = ['a_long', 'm_long', 'costant']
     param_units = ['1/$\mu$s', '$\mu$s', '']      
     
-    p0 = [0.05, 0.5, 0.88, 2.2, 0.008]
-    bounds =  (0.0, 0.0, 0.1, 1.5, 0.), (numpy.inf, 1., 1.5, 5., 1.)
-    x_min = 0.0
+    p0 = [0.05, 0.5, 0.08, 2.2, 0.008]
+    bounds =  (0.0, 0.0, 0.05, 1.5, 0.), (numpy.inf, 1., 1.2, 5., 1.)
+    x_min = 0.45 #0.064
     x_max = 20.
     
     plt.figure()        
@@ -59,14 +60,15 @@ if __name__ == '__main__' :
     channel_diff, time_diff, l_likelihood_exp = plot_channel_histogram(ch, time, ch_start, ch_stop_up, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = None ,  x_min = x_min, range_hist = (0., 20.), save_fig=save_fig)       
     test = utilities.ll_ratio_test_stat(l_likelihood_2exp, l_likelihood_exp)
     print("test: ", test)
-       
+   
+    x_min = 0.45    
     plt.figure()        
     channel_diff_down, time_diff_down, l_likelihood_2exp = plot_channel_histogram(ch, time, ch_start, ch_stop_down, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0, bounds = bounds, x_min = x_min, range_hist = (0., 20.), save_fig=save_fig)      
     channel_diff, time_diff, l_likelihood_exp = plot_channel_histogram(ch, time, ch_start, ch_stop_down, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = None, x_min = x_min, range_hist = (0., 20.), save_fig=save_fig) 
 
     test = utilities.ll_ratio_test_stat(l_likelihood_2exp, l_likelihood_exp)
     print("test: ", test)
-    print("--------------------\n")
+    print("-------\n")
 
     ch_stop = numpy.concatenate((channel_diff_up, channel_diff_down)) 
     time_stop = numpy.concatenate((time_diff_up, time_diff_down)) 
@@ -83,17 +85,17 @@ if __name__ == '__main__' :
 
     plt.figure()    
     plt.subplot(2, 3, 1)
-    plot_channel_histogram(ch, time, ch_stop_down, ch_stop_up, range_hist = (0., 5000), save_fig=save_fig)
+    plot_channel_histogram(ch, time, ch_stop_down, ch_stop_up, save_fig=save_fig)
     plt.subplot(2, 3, 2)
-    plot_channel_histogram(ch, time, ch_stop_down, ch_stop_down, range_hist = (0., 5000), save_fig=save_fig)
+    plot_channel_histogram(ch, time, ch_stop_down, ch_stop_down, save_fig=save_fig)
     plt.subplot(2, 3, 3)
-    plot_channel_histogram(ch, time, ch_stop_up, ch_stop_up, range_hist = (0., 5000), save_fig=save_fig)
+    plot_channel_histogram(ch, time, ch_stop_up, ch_stop_up, save_fig=save_fig)
     plt.subplot(2, 3, 4)
-    plot_channel_histogram(ch, time, ch_stop_up, ch_stop_down, range_hist = (0., 5000), save_fig=save_fig)
+    plot_channel_histogram(ch, time, ch_stop_up, ch_stop_down, save_fig=save_fig)
     plt.subplot(2, 3, 5)
-    plot_channel_histogram(ch, time, ch_stop_up, ch_start , range_hist = (0., 1000000), save_fig=save_fig)
+    plot_channel_histogram(ch, time, ch_stop_up, ch_start, range_hist = (0., 100000), save_fig=save_fig)
     plt.subplot(2, 3, 6)
-    plot_channel_histogram(ch, time, ch_stop_down, ch_start, range_hist = (0., 3), save_fig=save_fig)    
+    plot_channel_histogram(ch, time, ch_stop_down, ch_start, save_fig=save_fig)    
 
 
     plt.ion()

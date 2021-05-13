@@ -9,16 +9,16 @@ import plot_functions
 import functions 
 import utilities
 
-def plot_channel_histogram(ch, time, channel_start, channel_stop, fit_function = None, param_names = None , param_units = None, p0 = None,  bounds = (-numpy.inf, numpy.inf), save_fig = False, range_hist = None, x_min = 0., label = ''):
+def plot_channel_histogram(ch, time, channel_start, channel_stop, fit_function = None, param_names = None , param_units = None, p0 = None,  bounds = (-numpy.inf, numpy.inf), save_fig = False, range_hist = None, x_min = 0., label = '', ex_int = (numpy.inf, -numpy.inf)):
     print('\n')
     index, channel_diff, time_diff = utilities.mask_array(ch, time, channel_start, channel_stop)   
     time_diff = time_diff * 1.e6
     
     title = 'start:%d, stop:%d' %(channel_start, channel_stop)
     legend = '%d' % len(channel_diff)
-    bins, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = 80, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)      
+    bins, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = 50, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)      
     if fit_function is not None:
-        opt, pcov = plot_functions.fit_histogram(bins, n, dn, param_names, param_units, fit_function = fit_function, p0 = p0, bounds = bounds, x_min = x_min)
+        opt, pcov = plot_functions.fit_histogram(bins, n, dn, param_names, param_units, fit_function = fit_function, p0 = p0, bounds = bounds, x_min = x_min, ex_int = ex_int)
         l_likelihood = utilities.log_likelihood(bins, n, dn, fit_function, *opt)
 	#if save_fig == True:
 	#    figlabel = 'dt_%d_%d_%s.pdf' % (channel_start, channel_stop, label)
@@ -52,18 +52,18 @@ if __name__ == '__main__' :
     
     p0 = [0.05, 0.5, 0.08, 2.2, 0.008]
     bounds =  (0.0, 0.0, 0.05, 1.5, 0.), (numpy.inf, 1., 1.2, 5., 1.)
-    x_min = 0.45 #0.064
+    x_min = 0.064 #0.45
     x_max = 20.
     
     plt.figure()        
-    channel_diff_up, time_diff_up, l_likelihood_2exp = plot_channel_histogram(ch, time, ch_start, ch_stop_up, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0 , bounds = bounds, x_min = x_min, range_hist = (0., 20.), save_fig=save_fig)       
+    channel_diff_up, time_diff_up, l_likelihood_2exp = plot_channel_histogram(ch, time, ch_start, ch_stop_up, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0 , bounds = bounds, x_min = x_min, range_hist = (0., 20.), save_fig=save_fig, ex_int = (1.5, 4.))       
     channel_diff, time_diff, l_likelihood_exp = plot_channel_histogram(ch, time, ch_start, ch_stop_up, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = None ,  x_min = x_min, range_hist = (0., 20.), save_fig=save_fig)       
     test = utilities.ll_ratio_test_stat(l_likelihood_2exp, l_likelihood_exp)
     print("test: ", test)
    
-    x_min = 0.45    
+    x_min = 0.064   
     plt.figure()        
-    channel_diff_down, time_diff_down, l_likelihood_2exp = plot_channel_histogram(ch, time, ch_start, ch_stop_down, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0, bounds = bounds, x_min = x_min, range_hist = (0., 20.), save_fig=save_fig)      
+    channel_diff_down, time_diff_down, l_likelihood_2exp = plot_channel_histogram(ch, time, ch_start, ch_stop_down, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0, bounds = bounds, x_min = x_min, range_hist = (0., 20.), save_fig=save_fig, ex_int = (1.5, 4.))      
     channel_diff, time_diff, l_likelihood_exp = plot_channel_histogram(ch, time, ch_start, ch_stop_down, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = None, x_min = x_min, range_hist = (0., 20.), save_fig=save_fig) 
 
     test = utilities.ll_ratio_test_stat(l_likelihood_2exp, l_likelihood_exp)
@@ -76,7 +76,7 @@ if __name__ == '__main__' :
     title = ''#'start:%d, stop:%d' %(channel_start, channel_stop)
     legend = '%d' % len(ch_stop)
     bins, n, dn = plot_functions.plot_histogram(time_stop, "time [$\mu$s]", "", n_bins = 120, range = (0., 20.), title = title, legend = legend, fmt = '.b', as_scatter = True) 
-    plot_functions.fit_histogram(bins, n, dn, param_names_2exp, param_units_2exp, fit_function = functions.two_expo, p0 = p0, bounds = bounds, x_min = x_min, x_max = x_max) 
+    plot_functions.fit_histogram(bins, n, dn, param_names_2exp, param_units_2exp, fit_function = functions.two_expo, p0 = p0, bounds = bounds, x_min = x_min, x_max = x_max, ex_int = (1.5, 4.)) 
                
 
     plt.figure()    
@@ -97,7 +97,10 @@ if __name__ == '__main__' :
     plt.subplot(2, 3, 6)
     plot_channel_histogram(ch, time, ch_stop_down, ch_start, save_fig=save_fig)    
 
-
+    plt.figure()
+    plot_functions.plot_histogram(time_stop, "", "", n_bins = 40, range = (1.5, 4.5), title = '', legend = '', fmt = '.b', as_scatter = True)
+   
+    
     plt.ion()
     plt.show()
 

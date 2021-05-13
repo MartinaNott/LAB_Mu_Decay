@@ -72,7 +72,6 @@ def format_value_error(value, error, pm='+/-', max_dec_places=6):
             fmt = '%%d %s %%d' % pm
     return fmt % (value, error)
 
-
 def make_opt_string(opt, pcov, s = '', s_f = ''):
   numpy.set_printoptions(linewidth=numpy.inf, precision=5)
   opt_err = numpy.sqrt(pcov.diagonal())
@@ -80,7 +79,6 @@ def make_opt_string(opt, pcov, s = '', s_f = ''):
   array_str = array_str.strip('[]')  
   string = s + ' ' + array_str + s_f + '\n'
   return string  
-  
 
 def mask_array(channel, time, channel_start, channel_stop):   
   mask_channel =  (channel[:-1] == channel_start) * (channel[1:] == channel_stop)

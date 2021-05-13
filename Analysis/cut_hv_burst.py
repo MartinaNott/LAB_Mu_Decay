@@ -32,7 +32,7 @@ if __name__ == '__main__' :
     channel_selected = options['channel']
 
     ch, time = numpy.loadtxt(data_file, unpack=True)       
-    utilities.find_hv_bursts(ch, 1)
+    utilities.find_hv_bursts(ch, channel_selected)
 
     if channel_selected is not None: 
         ch_mask = ch >= channel_selected

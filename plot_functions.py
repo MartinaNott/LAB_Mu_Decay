@@ -52,8 +52,8 @@ def plot_histogram(x, xlabel, ylabel, n_bins = None, range = None, title = '', l
     return bins, n, dn
 
 
-def fit_histogram(bins, n, dn, param_names, param_units, fit_function = functions.gauss, p0 = None, bounds = None, x_min = -numpy.inf, x_max = numpy.inf): 
-  mask = (bins > x_min ) * (bins < x_max)
+def fit_histogram(bins, n, dn, param_names, param_units, fit_function = functions.gauss, p0 = None, bounds = None, x_min = -numpy.inf, x_max = numpy.inf, ex_int = (numpy.inf, -numpy.inf) ): 
+  mask = (bins > x_min ) * (bins < x_max) * (( bins < ex_int[0]) | (bins > ex_int[1]))
   bins = bins[mask]
   n = n[mask]
   dn = dn[mask]

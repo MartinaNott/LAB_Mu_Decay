@@ -39,13 +39,22 @@ def costant(x,  q):
     return q
 
 def gauss(x, norm, mean, sigma): 
-    return (norm) * numpy.exp(-0.5 * ((x - mean)/sigma )**2)
+    return (norm/(sigma * numpy.sqrt(2 * numpy.pi))) * numpy.exp(-0.5 * ((x - mean)/sigma )**2)
   
 def two_gauss(x, a, norm, mean1, sigma1, mean2, sigma2):
     return a * gauss(x, norm, mean1, sigma1) + (1.-a) * gauss(x, norm, mean2, sigma2)
 
 def exponential(x, a, m, costant): 
-    return a * numpy.exp(-x * m) + costant
+    return a * numpy.exp(-x / m) + costant
 
 def two_expo(x, norm, fraction, m_short, m_long, costant): 
     return  norm * (fraction * numpy.exp(- x / m_short) + (1. - fraction) * numpy.exp(- x / m_long) ) + costant      
+    
+    
+def two_expo_gauss(x, norm, fraction, m_short, m_long, costant, gauss_norm, gauss_mean, gauss_sigma):     
+    return two_expo(x, norm, fraction, m_short, m_long, costant) + gauss(x, gauss_norm, gauss_mean, gauss_sigma) 
+
+
+
+
+

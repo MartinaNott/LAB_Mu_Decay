@@ -3,10 +3,10 @@ sys.path.insert(1, '/home/ele/lab/LAB_Mu_Decay')
 
 import numpy
 import matplotlib.pyplot as plt
-import argparse 
+import argparse
 
 import plot_functions
-import functions 
+import functions
 import utilities
 
 def plot_channel_histogram(time_diff, channel_start, channel_stop, n_bins, fit_function = None, param_names = None , param_units = None, p0 = None,  bounds = (-numpy.inf, numpy.inf), save_fig = False, range_hist = None, x_min = 0., label = '', ex_int = (numpy.inf, -numpy.inf)):
@@ -24,30 +24,34 @@ def plot_channel_histogram(time_diff, channel_start, channel_stop, n_bins, fit_f
         return  l_likelihood          
     return 
    
+
 description = ''
 options_parser = argparse.ArgumentParser(description = description)
-options_parser.add_argument('-input_file', '-f', default=None, type=str, help='input_file')
+options_parser.add_argument('-input_file', '-f', nargs='*' , default=None, type=str, help='input_file')
 options_parser.add_argument('-save_fig', '-s', default=False, action='store_true', help='save fig')
 options_parser.add_argument('-ch_start', '-start', default=None, type=int, help='ch_start')
 options_parser.add_argument('-ch_stop_up', '-up', default=None, type=int, help='ch_stop_up')
 options_parser.add_argument('-ch_stop_down', '-down', default=None, type=int, help='ch_stop_down')
 
-if __name__ == '__main__' :   
-    options = vars(options_parser.parse_args())  
+if __name__ == '__main__' :
+    options = vars(options_parser.parse_args())
     data_file = options['input_file']
     save_fig = options['save_fig']
-    ch_start = options['ch_start']    
+    ch_start = options['ch_start']
     ch_stop_up = options['ch_stop_up']
-    ch_stop_down = options['ch_stop_down']        
-    ch, time = numpy.loadtxt(data_file, unpack=True)
-      
+    ch_stop_down = options['ch_stop_down']
+
+    data = numpy.hstack([numpy.loadtxt(_file, unpack=True) for _file in data_file])
+    ch = data[0, :]
+    time = data[1, :]
+
     param_names_2exp = ['norm', 'fraction', 'm_short', 'm_long', 'costant']
-    param_units_2exp = ['$\mu ^-1$s', '', '$\mu$s', '$\mu$s', '$\mu ^-1$s']  
+    param_units_2exp = ['$\mu ^-1$s', '', '$\mu$s', '$\mu$s', '$\mu ^-1$s']
     param_names_2expo_gauss = ['norm', 'fraction', 'm_short', 'm_long', 'costant', 'norm', 'mean', 'sigma']
-    param_units_2expo_gauss = ['$\mu ^-1$s', '', '$\mu$s', '$\mu$s', '$\mu ^-1$s', '', 'mus', 'mus'] 
+    param_units_2expo_gauss = ['$\mu ^-1$s', '', '$\mu$s', '$\mu$s', '$\mu ^-1$s', '', 'mus', 'mus']
     param_names = ['a_long', 'm_long', 'costant']
-    param_units = ['1/$\mu$s', '$\mu$s', '']      
-  
+    param_units = ['1/$\mu$s', '$\mu$s', '']
+
     #PARAMETRI INIZIALI DEL FIT E BOUNDARIES DEI PARAMETRI PER I FIT CON DOPPIA ESPONENZIALE
     p0 = [1., 0.5, 0.88, 2.2, 0.008]
     bounds =  (0.0, 0.0, 0.02, 1.5, 0.), (numpy.inf, 1., 1.3, 5., 1.)
@@ -76,6 +80,7 @@ if __name__ == '__main__' :
     l_likelihood_2exp = plot_channel_histogram(time_diff_down, ch_start, ch_stop_down, n_bins = n_bins_down, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0, bounds = bounds, x_min = x_min, range_hist = range_hist, save_fig=save_fig)      
     l_likelihood_exp = plot_channel_histogram(time_diff_down, ch_start, ch_stop_down, n_bins = n_bins_down, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = None, x_min = x_min, range_hist = range_hist, save_fig=save_fig) 
 
+
     test = utilities.ll_ratio_test_stat(l_likelihood_2exp, l_likelihood_exp)
     print("test: ", test)
     print("-------\n")
@@ -98,6 +103,7 @@ if __name__ == '__main__' :
     index, channel_diff, time_diff = utilities.mask_array(ch, time, ch_start, ch_start)   
     plt.figure()    
     plot_channel_histogram(time_diff, ch_start, ch_start, n_bins = n_bins, range_hist = (0., 1.))#, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = p0)
+
     """
     #MODELLO: DUE ESPONENZIALI CON VITE MEDIE DIVERSE E UN ESPONENZIALE A CONFRONTO
     plt.figure()
@@ -106,7 +112,7 @@ if __name__ == '__main__' :
     plt.plot(dt, functions.exponential(dt, 1., 2.2, 0.0001) )   
     
     #ALCUNI PLOT DI TEST PER VEDERE CORRELAZIONI, AFTERPULSE, E COSE CHE SUCCEDONO
-    plt.figure()    
+    plt.figure()
     plt.subplot(2, 3, 1)
     plot_channel_histogram(ch, time, ch_stop_down, ch_stop_up, save_fig=save_fig)
     plt.subplot(2, 3, 2)
@@ -130,7 +136,6 @@ if __name__ == '__main__' :
     plot_functions.fit_histogram(bins, n, dn, param_names_2expo_gauss, param_units_2expo_gauss, fit_function = functions.two_expo_gauss, p0 = p0, bounds = bounds, x_min = x_min, x_max = x_max) 
     """  
     
+
     plt.ion()
     plt.show()
-
-

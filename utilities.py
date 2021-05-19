@@ -87,8 +87,9 @@ def mask_array(channel, time, channel_start, channel_stop):
   time_diff = numpy.ediff1d(time)
   channel_diff = channel_diff[index]
   time_diff = time_diff[index]    
+  time_diff = time_diff * 1.e6
   print("CHSTART: %d, CHSTOP: %d, found %d events: " % (channel_start, channel_stop, mask_channel.sum()))    
-  return index, channel_diff, time_diff
+  return index, channel_diff, time_diff #in microsecondi
  
  
 def find_hv_bursts(ch, ch_min):

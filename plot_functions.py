@@ -70,9 +70,9 @@ def fit_histogram(bins, n, dn, param_names, param_units, fit_function = function
   print("LEGEND:", legend)
   return opt, pcov
   
-def scatter_plot(x, y, xlabel, ylabel, title = ''):
+def scatter_plot(x, y, xlabel, ylabel, dx = None, dy = None,  title = ''):
   plt.figure()
-  plt.plot(x, y, '.')
+  plt.errorbar(x, y, xerr = dx, yerr = dy , fmt = '.')
   plt.xlim(x.min(), x.max())
   plt.ylim(y.min(), y.max())  
   set_plot(xlabel, ylabel, title = title)

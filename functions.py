@@ -55,6 +55,10 @@ def two_expo_gauss(x, norm, fraction, m_short, m_long, costant, gauss_norm, gaus
     return two_expo(x, norm, fraction, m_short, m_long, costant) + gauss(x, gauss_norm, gauss_mean, gauss_sigma) 
 
 
-
-
+def do_expo_integral():
+    def expo_integral(bin_center, norm, fraction, m_short, m_long, costant):
+        t_sup = bin_center + 0.5 * (bin_center[1] - bin_center[0])
+        t_inf = bin_center - 0.5 * (bin_center[1] - bin_center[0])
+        return - norm * (fraction/m_short * (numpy.exp(-t_sup/m_short) - numpy.exp(-t_inf/m_short)) + (1.- fraction)/m_long * (numpy.exp(-t_sup/m_long) - numpy.exp(-t_inf/m_long))) + costant * (t_sup - t_inf)
+    return expo_integral
 

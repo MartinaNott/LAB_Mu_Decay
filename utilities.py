@@ -90,6 +90,18 @@ def mask_array(channel, time, channel_start, channel_stop):
   time_diff = time_diff * 1.e6
   print("CHSTART: %d, CHSTOP: %d, found %d events: " % (channel_start, channel_stop, mask_channel.sum()))    
   return index, channel_diff, time_diff #in microsecondi
+
+def find_sequences_in_array(channel, time, channel_start, channel_middle, channel_stop): 
+  mask_channel =  (channel[:-2] == channel_start) * (channel[1:-1] == channel_middle) * (channel[2:] == channel_stop)
+  index = numpy.where(mask_channel)[0] +1
+  channel_diff = numpy.ediff1d(channel)
+  time_diff = numpy.ediff1d(time)
+  channel_diff = channel_diff[index]
+  time_diff = time_diff[index]    
+  time_diff = time_diff * 1.e6
+  print("CHSTART: %d, CHMEDIUM: %d, CHSTOP: %d, found %d events: " % (channel_start, channel_middle, channel_stop, mask_channel.sum()))
+  return index, channel_diff, time_diff
+
  
  
 def find_hv_bursts(ch, ch_min):

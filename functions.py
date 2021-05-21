@@ -38,6 +38,9 @@ def costant(x,  q):
     q = numpy.ones(len(x))*q
     return q
 
+def wave(x, amplitude, frequency, phi, costant): 
+    return amplitude * numpy.cos(frequency * x + phi) + costant
+
 def gauss(x, norm, mean, sigma): 
     return (norm/(sigma * numpy.sqrt(2 * numpy.pi))) * numpy.exp(-0.5 * ((x - mean)/sigma )**2)
   

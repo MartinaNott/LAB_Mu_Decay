@@ -8,7 +8,7 @@ import argparse
 import plot_functions
 import functions
 import utilities
-import delta_t
+import two_expo_fit
 
 description = ''
 options_parser = argparse.ArgumentParser(description = description)
@@ -34,8 +34,8 @@ if __name__ == '__main__' :
     param_units_2exp = ['$\mu ^-1$s', '', '$\mu$s', '$\mu$s', '$\mu ^-1$s']
 
     #PARAMETRI INIZIALI DEL FIT E BOUNDARIES DEI PARAMETRI PER I FIT CON DOPPIA ESPONENZIALE
-    p0 = [33., 0.35, 0.088, 2.2, 0.008]
-    bounds =  (0.0, 0.01, 0.02, 1.5, 0.), (numpy.inf, 0.999, 1.3, 5., 1.)
+    p0 = [2.e+6, 0.5, 0.088, 2.2, 0.008]
+    bounds =  (0., 0., 0.060, 1.5, 0.), (numpy.inf, 1., 0.090, 5., 1.)
     x_min = 0.0 #0.045# 0.64 
     x_max = 20.
     n_bins_up = 100
@@ -47,17 +47,19 @@ if __name__ == '__main__' :
     #FIT DEI DATI CON SOPRA VERSO L'ALTO       
     index, channel_diff_up, time_diff_up = utilities.mask_array(ch, time, ch_start, ch_stop_up)   
     range_hist = (time_diff_up[time_diff_up > 0.].min(), x_max)
-    #bins_center, n, dn = plot_functions.plot_histogram(time_diff_up, "time [$\mu$s]", "", n_bins = n_bins, range = range_hist, title = '', legend = '', fmt = '.b', as_scatter = True)    
-    #plt.plot(bins_center, integral(bins_center, *p0), '-')
-    plt.figure()        
-    l_likelihood = delta_t.plot_channel_histogram(time_diff_up, ch_start, ch_stop_up, n_bins = n_bins_up, fit_function = integral, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0 , bounds = bounds, x_min = x_min, range_hist = range_hist, save_fig=save_fig)       
 
+    plt.figure()        
+    plt.subplot(2, 1, 1)
+    l_likelihood = two_expo_fit.plot_channel_histogram(time_diff_up, ch_start, ch_stop_up, n_bins = n_bins_up, fit_function = integral, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0 , bounds = bounds, x_min = x_min, range_hist = range_hist, save_fig=save_fig)       
+
+    
     #FIT DEI DATI CON SOPRA VERSO IL BASSO   
     index, channel_diff_down, time_diff_down = utilities.mask_array(ch, time, ch_start, ch_stop_down)   
     range_hist = (time_diff_down[time_diff_down > 0.].min(), x_max)
-    plt.figure()        
-    l_likelihood = delta_t.plot_channel_histogram(time_diff_down, ch_start, ch_stop_down, n_bins = n_bins_down, fit_function = integral, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0, bounds = bounds, x_min = x_min, range_hist = range_hist, save_fig=save_fig)      
- 
+    plt.figure()
+    plt.subplot(2, 1, )
+    l_likelihood = two_expo_fit.plot_channel_histogram(time_diff_down, ch_start, ch_stop_down, n_bins = n_bins_up, fit_function = integral, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0 , bounds = bounds, x_min = x_min, range_hist = range_hist, save_fig=save_fig)  
+     
     #AGGREGANDO I DATI: SOPRA E SOTTO    
     ch_stop = numpy.concatenate((channel_diff_up, channel_diff_down)) 
     time_stop = numpy.concatenate((time_diff_up, time_diff_down)) 
@@ -65,10 +67,7 @@ if __name__ == '__main__' :
     title = ''
     legend = '%d' % len(time_stop)
     bins, n, dn = plot_functions.plot_histogram(time_stop, "time [$\mu$s]", "", n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True) 
-    plot_functions.fit_histogram(bins, n, dn, param_names_2exp, param_units_2exp, fit_function = integral, p0 = p0, bounds = bounds, x_min = x_min, x_max = x_max) 
-    
-    
-
+    plot_functions.do_fit(bins, n, dn, param_names_2exp, param_units_2exp, fit_function = integral, p0 = p0, bounds = bounds, x_min = x_min, x_max = x_max) 
     
     plt.ion()
     plt.show()

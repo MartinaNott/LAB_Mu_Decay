@@ -35,8 +35,8 @@ def plot_histogram(x, xlabel, ylabel, n_bins = None, range = None, title = '', l
   
   if (as_scatter is True):
     errors = numpy.sqrt(n)
-    errors = errors/n.sum()
-    n = n/n.sum()  
+    #errors = errors/n.sum()
+    #n = n/n.sum()  
     bin_centers = 0.5 * (bins[1:] + bins[:-1])    
     mask = (n > 0.)
     new_bins = bin_centers[mask]
@@ -52,32 +52,33 @@ def plot_histogram(x, xlabel, ylabel, n_bins = None, range = None, title = '', l
     return bins, n, dn
 
 
-def fit_histogram(bins, n, dn, param_names, param_units, fit_function = functions.gauss, p0 = None, bounds = None, x_min = -numpy.inf, x_max = numpy.inf, ex_int = (numpy.inf, -numpy.inf) ): 
-  mask = (bins > x_min ) * (bins < x_max) * (( bins < ex_int[0]) | (bins > ex_int[1]))
-  bins = bins[mask]
-  n = n[mask]
-  dn = dn[mask]
+def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds = (-numpy.inf, numpy.inf), x_min = -numpy.inf, x_max = numpy.inf, ex_int = (numpy.inf, -numpy.inf) ): 
+  mask = (x > x_min ) * (x < x_max) * (( x < ex_int[0]) | (x > ex_int[1]))
+  x = x[mask]
+  y = y[mask]
+  dy = dy[mask]
   
-  opt, pcov = curve_fit(fit_function, bins, n, sigma = dn, p0 = p0, bounds = bounds)   
-  chi2 = (n - fit_function(bins, *opt))**2 / dn**2
+  opt, pcov = curve_fit(fit_function, x, y, sigma = dy, p0 = p0, bounds = bounds)   
+  chi2 = (y - fit_function(x, *opt))**2 / dy**2
   chi2 = chi2.sum()
-  ndof = len(n)-len(opt)  
+  ndof = len(y)-len(opt)  
   
-  legend = fit_legend(opt, numpy.sqrt(pcov.diagonal())  , param_names, param_units, chi2, ndof)
-  bin_grid = numpy.linspace(bins.min(), bins.max(), 1000)  
+  legend = fit_legend(opt, numpy.sqrt(pcov.diagonal()), param_names, param_units, chi2, ndof)
+  bin_grid = numpy.linspace(x.min(), x.max(), 1000)  
   plt.plot(bin_grid, fit_function(bin_grid, *opt), label = legend)        
   plt.legend() 
   print("LEGEND:", legend)
   return opt, pcov
   
 def scatter_plot(x, y, xlabel, ylabel, dx = None, dy = None,  title = ''):
-  plt.figure()
   plt.errorbar(x, y, xerr = dx, yerr = dy , fmt = '.')
   plt.xlim(x.min(), x.max())
   plt.ylim(y.min(), y.max())  
   set_plot(xlabel, ylabel, title = title)
   plt.grid(True)  
   return   
+
+
 
 def hist2d(x, y, xlabel, ylabel, bins=None, range_x = None, range_y = None, norm = None, title = '', legend = ''):
   plt.figure()

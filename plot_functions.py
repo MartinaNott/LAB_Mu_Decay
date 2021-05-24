@@ -70,8 +70,8 @@ def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds =
   print("LEGEND:", legend)
   return opt, pcov
   
-def scatter_plot(x, y, xlabel, ylabel, dx = None, dy = None,  title = ''):
-  plt.errorbar(x, y, xerr = dx, yerr = dy , fmt = '.')
+def scatter_plot(x, y, xlabel, ylabel, dx = None, dy = None,  title = '', fmt='.'):
+  plt.errorbar(x, y, xerr = dx, yerr = dy , fmt = fmt)
   plt.xlim(x.min(), x.max())
   plt.ylim(y.min(), y.max())  
   set_plot(xlabel, ylabel, title = title)

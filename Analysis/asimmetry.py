@@ -47,13 +47,12 @@ if __name__ == '__main__' :
     time = data[1, :]
 
     x_min = 0.3  
-    x_max = 8.
-    n_bins = 80
-       
+    x_max = 20.
+    n_bins = 40
     index, channel_diff_up, time_diff_up = utilities.mask_array(ch, time, ch_start, ch_stop_up)   
     index, channel_diff_down, time_diff_down = utilities.mask_array(ch, time, ch_start, ch_stop_down)   
-    range_hist = (time_diff_up[time_diff_up > 0.].min(), 10.)
-    range_hist = (time_diff_down[time_diff_down > 0.].min(), 10.)
+    range_hist = (time_diff_up[time_diff_up > 0.].min(), 20.)
+    range_hist = (time_diff_down[time_diff_down > 0.].min(), 20.)
     
     plt.figure()        
     plt.subplot(2, 1, 1)
@@ -77,7 +76,7 @@ if __name__ == '__main__' :
     bounds = (0., 0., -numpy.inf, 0.), (0.3, numpy.inf, 2 * numpy.pi, 1. )
     param_names = ['Amplitude', '$\omega$', '$\phi$', '']
     param_units = ['', 'MHz', 'rad', '']
-    #plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names, param_units, functions.wave, p0 = p0, bounds = bounds , x_min = x_min, x_max = x_max)
+    plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names, param_units, functions.wave, p0 = p0, bounds = bounds , x_min = x_min, x_max = x_max)
     
     
         

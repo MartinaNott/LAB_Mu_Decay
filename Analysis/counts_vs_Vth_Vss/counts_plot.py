@@ -18,50 +18,50 @@ date = '15/04/21'
 for scintillator in data_dict:
     data_file = data_dict[scintillator][0]
     Vss, counts, time = numpy.loadtxt(data_file, unpack=True)
-    Vth = 40. #mV
-    title = '%s - %d mV ' % (date, Vth)
+    #Vth = 40. #mV
+    title = '%s' % (date)
     rate = counts/time
     dcounts = numpy.sqrt(counts)
     drate = dcounts/time
     plt.errorbar(Vss, rate, yerr = drate, label = scintillator)
-    plot_functions.set_plot('V [V]', 'Rate [Hz]', title = title)
+    plot_functions.set_plot('$V_a$ [V]', 'Rate [Hz]', title = title)
    
 plt.figure()
 for scintillator in data_dict:
     data_file = data_dict[scintillator][1]
     Vss, counts, time = numpy.loadtxt(data_file, unpack=True)
-    Vth = 70. #mV
-    title = '%s - %d mV ' % (date, Vth)
+    #Vth = 70. #mV
+    title = '%s' % (date)
     rate = counts/time
     dcounts = numpy.sqrt(counts)
     drate = dcounts/time
     plt.errorbar(Vss, rate, yerr = drate, label = scintillator)
-    plot_functions.set_plot('V [V]', 'Rate [Hz]', title = title)
+    plot_functions.set_plot('$V_a$ [V]', 'Rate [Hz]', title = title)
 
 date = '20/04/21'
 plt.figure()
 for scintillator in data_dict:
     data_file = data_dict[scintillator][2]
     Vss, counts, time = numpy.loadtxt(data_file, unpack=True)
-    Vth = 40. #mV
-    title = '%s - %d mV ' % (date, Vth)
+    #Vth = 40. #mV
+    title = '%s' % (date)
     rate = counts/time
     dcounts = numpy.sqrt(counts)
     drate = dcounts/time
     plt.errorbar(Vss, rate, yerr = drate, label = scintillator)
-    plot_functions.set_plot('V [V]', 'Rate [Hz]', title = title)
+    plot_functions.set_plot('$V_a$ [V]', 'Rate [Hz]', title = title)
 
 plt.figure()
 for scintillator in data_dict:
     data_file = data_dict[scintillator][3]
     Vss, counts, time = numpy.loadtxt(data_file, unpack=True)
-    Vth = 40. #mV
-    title = '%s - %d mV ' % (date, Vth)
+    #Vth = 40. #mV
+    title = '%s' % (date)
     rate = counts/time
     dcounts = numpy.sqrt(counts)
     drate = dcounts/time
     plt.errorbar(Vss, rate, yerr = drate, label = scintillator)
-    plot_functions.set_plot('V [V]', 'Rate [Hz]', title = title)
+    plot_functions.set_plot('$V_a$ [V]', 'Rate [Hz]', title = title)
             
 plt.ion()
 plt.show()

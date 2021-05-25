@@ -2,12 +2,12 @@ import numpy
 
 
 #Large scintillators dimensions
-L = 50. #cm
-W = 40. #cm
+L = 30. #cm
+W = 30. #cm
 H = 1.  #cm
 
 #Distance between scintillators: 
-h_ij = 5. #cm
+h_ij = 20. #cm
 
 
 #Little scintillator dimensions: 

@@ -14,7 +14,8 @@ def set_plot(xlabel, ylabel, title = ''):
   plt.ylabel(ylabel, fontsize=14)
   plt.yticks(fontsize=14, rotation=0)
   plt.xticks(fontsize=14, rotation=0) 
-  plt.subplots_adjust(bottom = 0.13, left = 0.15)  
+  plt.subplots_adjust(bottom = 0.13, left = 0.15)
+  plt.grid(True)  
   plt.legend() 
   return  
 
@@ -70,14 +71,12 @@ def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds =
   print("LEGEND:", legend)
   return opt, pcov
   
-def scatter_plot(x, y, xlabel, ylabel, dx = None, dy = None,  title = '', fmt='.'):
-  plt.errorbar(x, y, xerr = dx, yerr = dy , fmt = fmt)
-  plt.xlim(x.min(), x.max())
-  plt.ylim(y.min(), y.max())  
+def scatter_plot(x, y, xlabel, ylabel, dx = None, dy = None,  title = '', legend = '', fmt='.'):
+  plt.errorbar(x, y, xerr = dx, yerr = dy , fmt = fmt, label = legend)
+  #plt.xlim(x.min(), x.max())
+  #plt.ylim(y.min(), y.max())  
   set_plot(xlabel, ylabel, title = title)
-  plt.grid(True)  
   return   
-
 
 
 def hist2d(x, y, xlabel, ylabel, bins=None, range_x = None, range_y = None, norm = None, title = '', legend = ''):

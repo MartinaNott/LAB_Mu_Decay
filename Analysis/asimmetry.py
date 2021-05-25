@@ -41,7 +41,6 @@ if __name__ == '__main__' :
     ch_start = options['ch_start']
     ch_stop_up = options['ch_stop_up']
     ch_stop_down = options['ch_stop_down']
-
     data = numpy.hstack([numpy.loadtxt(_file, unpack=True) for _file in data_file])
     ch = data[0, :]
     time = data[1, :]
@@ -52,12 +51,11 @@ if __name__ == '__main__' :
     index, channel_diff_up, time_diff_up = utilities.mask_array(ch, time, ch_start, ch_stop_up)   
     index, channel_diff_down, time_diff_down = utilities.mask_array(ch, time, ch_start, ch_stop_down)   
     range_hist = (time_diff_up[time_diff_up > 0.].min(), 20.)
-    range_hist = (time_diff_down[time_diff_down > 0.].min(), 20.)
     
     plt.figure()        
-    plt.subplot(2, 1, 1)
+    #plt.subplot(2, 1, 1)
     two_expo_fit.plot_channel_histogram(time_diff_up, ch_start, ch_stop_up, n_bins = n_bins, range_hist = range_hist, save_fig=save_fig) 
-    plt.subplot(2, 1, 2)
+    #plt.subplot(2, 1, 2)
     two_expo_fit.plot_channel_histogram(time_diff_down, ch_start, ch_stop_down, n_bins = n_bins, range_hist = range_hist, save_fig=save_fig) 
 
     #AGGREGANDO I DATI: SOPRA E SOTTO    
@@ -71,15 +69,23 @@ if __name__ == '__main__' :
     #ASIMMETRIA
     asimmetry, asimmetry_err, bins_center = calculate_asimmetry(time_diff_up, time_diff_down, n_bins, range_hist)
     plt.figure()
+    plt.subplot(2,1,1)
     plot_functions.scatter_plot(bins_center, asimmetry, 'dt [$\mu$s]', 'Asimmetry ', dy = asimmetry_err, title = '')
     p0 = [0.1, 3., 0.0, 0.1]
     bounds = (0., 0., -numpy.inf, 0.), (0.3, numpy.inf, 2 * numpy.pi, 1. )
     param_names = ['Amplitude', '$\omega$', '$\phi$', '']
     param_units = ['', 'MHz', 'rad', '']
     plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names, param_units, functions.wave, p0 = p0, bounds = bounds , x_min = x_min, x_max = x_max)
-    
-    
-        
+   
+    plt.subplot(2,1,2)
+    plot_functions.scatter_plot(bins_center, asimmetry, 'dt [$\mu$s]', 'Asimmetry ', dy = asimmetry_err, title = '')    
+    p0 = [0.1, 3., 0.0, 0.1, 0.1]
+    bounds = (0., 0., -numpy.inf, 0., 0.), (0.3, numpy.inf, 2 * numpy.pi, 1., numpy.inf )
+    param_names = ['Amplitude', '$\omega$', '$\phi$', '', '$\mu s^-1$']
+    param_units = ['', 'MHz', 'rad', '', 'MHz']
+    plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names, param_units, functions.increasing_wave, p0 = p0, bounds = bounds , x_min = x_min, x_max = x_max)
+
+
     #ALCUNI PLOT DI MONITORAGGIO
     plt.figure()
     n_bins = 20
@@ -105,8 +111,11 @@ if __name__ == '__main__' :
     #DELTA T RELATIVO AI SEGNALI DI START (PER SAPERE PIU O MENO IL RATE DEI MUONI CHE SI FERMANO)
     p0 = [1000., 1.e5, 0.008]
     index, channel_diff, time_diff = utilities.mask_array(ch, time, ch_start, ch_start)   
-    plt.figure()    
-    two_expo_fit.plot_channel_histogram(time_diff, ch_start, ch_start, n_bins = n_bins, range_hist = (0., 1.))#, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = p0)  
+    plt.figure()   
+    plt.subplot(2,1,1) 
+    two_expo_fit.plot_channel_histogram(time_diff, ch_start, ch_start, n_bins = 200, range_hist = (0., 2.5))#, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = p0)  
+    plt.subplot(2,1,2)    
+    two_expo_fit.plot_channel_histogram(time_diff, ch_start, ch_start, n_bins = 200, range_hist = (0., 100000))#, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = p0)    
     
     plt.ion()
     plt.show()

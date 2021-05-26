@@ -19,7 +19,7 @@ def efficiency(Nsel, Ntot):
     return epsilon, epsilon_err
     
 
-#Misure Martina    
+#Misure 20 aprile    
 N_sel = numpy.array([573, 573, 864, 581, 587, 587 ])
 N_tot = numpy.array([1774, 603, 890, 617, 670, 1051 ])
 epsilon_d1, epsilon_err_d1 = efficiency(N_sel, N_tot)    

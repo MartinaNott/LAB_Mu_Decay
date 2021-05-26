@@ -95,7 +95,7 @@ def hist2d(x, y, xlabel, ylabel, bins=None, range_x = None, range_y = None, norm
 
 def line_fit(x, y, xlabel, ylabel, param_units, param_names = ['m', 'q'], dy = None, dx = None, err_fit = None, title = ''):
     p0 = [1., 1. ]
-    opt, pcov = curve_fit(fit_functions.line, x, y, sigma = err_fit)    
+    opt, pcov = curve_fit(functions.line, x, y, sigma = err_fit)    
     param_errors = numpy.sqrt(numpy.diagonal(pcov)[0])  
     res = y - functions.line(x, *opt)
     chi2 = (res**2)/(err_fit**2)

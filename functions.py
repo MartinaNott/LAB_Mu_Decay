@@ -65,6 +65,8 @@ def two_expo_integral(bin_center, norm, fraction, m_short, m_long, costant):
 
 def gauss_log_likelihood(x, y, sigma, model, *model_params):
     y_pred = model(x, *model_params)
+    #print('ypred', y_pred)
+    #print('norm.pdf(y, loc=y_pred, scale=sigma)', norm.pdf(y, loc=y_pred, scale=sigma))
     return numpy.sum(numpy.log(norm.pdf(y, loc=y_pred, scale=sigma)))
 
 def ll_ratio_test_stat(loglh_alt, loglh_null):

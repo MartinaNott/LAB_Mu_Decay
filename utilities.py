@@ -1,9 +1,9 @@
 import numpy
 import sys
-from scipy.stats import norm
+
 
 import geometry
- 
+
 
 def acquisition_duration(t):
     Delta_t = numpy.ediff1d(t)
@@ -101,7 +101,6 @@ def find_sequences_in_array(channel, time, channel_start, channel_middle, channe
   time_diff = time_diff * 1.e6
   print("CHSTART: %d, CHMEDIUM: %d, CHSTOP: %d, found %d events: " % (channel_start, channel_middle, channel_stop, mask_channel.sum()))
   return index, channel_diff, time_diff
-
  
  
 def find_hv_bursts(ch, ch_min):
@@ -114,12 +113,7 @@ def remove_hv_bursts(line_inf, line_sup, mask):
     mask[line_inf: line_sup] = False
     return mask 
     
-def log_likelihood(x, y, sigma, model, *model_params):
-    y_pred = model(x, *model_params)
-    return numpy.sum(numpy.log(norm.pdf(y, loc=y_pred, scale=sigma)))
 
-def ll_ratio_test_stat(loglh_alt, loglh_null):
-    return -2 * (loglh_null - loglh_alt)    
-    
+
     
     

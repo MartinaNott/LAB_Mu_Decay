@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, '/home/ele/lab/LAB_Mu_Decay')
+sys.path.insert(1, '/home/elo/ele/LAB_Mu_Decay')
 
 import numpy
 import matplotlib.pyplot as plt

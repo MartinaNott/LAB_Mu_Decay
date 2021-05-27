@@ -55,7 +55,7 @@ if __name__ == '__main__' :
     time = data[1, :]
 
     x_min = 0.5
-    x_max = 10.
+    x_max = 20.
     n_bins = 40
     index, channel_diff_up, time_diff_up = utilities.mask_array(ch, time, ch_start, ch_stop_up)   
     index, channel_diff_down, time_diff_down = utilities.mask_array(ch, time, ch_start, ch_stop_down)   
@@ -84,8 +84,7 @@ if __name__ == '__main__' :
     param_names = ['Amplitude', '$\omega$', '$\phi$', 'costant']
     param_units = ['', 'MHz', 'rad', '']
     opt_wave, pcov_wave = plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names, param_units, functions.wave, p0 = p0, bounds = bounds , x_min = x_min, x_max = x_max)
-    
-    plt.subplot(3,1,2)
+    plt.subplot(3,1,2)    
     plot_functions.scatter_plot(bins_center, asimmetry, 'dt [$\mu$s]', 'Asimmetry ', dy = asimmetry_err, title = '')    
     p0 = [0.1, 3., 0.0, 0.1, 0.1]
     bounds = (0., 0., -numpy.inf, -numpy.inf, -numpy.inf), (0.3, numpy.inf, 2 * numpy.pi, +numpy.inf, numpy.inf )
@@ -94,7 +93,20 @@ if __name__ == '__main__' :
     opt_increasing_wave, pcov_increasing_wave  = plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names, param_units, functions.increasing_wave, p0 = p0, bounds = bounds , x_min = x_min, x_max = x_max)
     plt.subplot(3,1,3)
     plot_functions.scatter_plot(bins_center, asimmetry, 'dt [$\mu$s]', 'Asimmetry ', dy = asimmetry_err, title = '')
-    opt_costant, pcov_costant = plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names = ['costant'], param_units=[''], fit_function=functions.costant, p0 = None , x_min = x_min, x_max = x_max) 
+    opt_line, pcov_line = plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names = ['m', 'costant'], param_units=['MHz', ''], fit_function=functions.line, p0 = None , x_min = x_min, x_max = x_max) 
+
+    #figlabel = 'asimmetria_ferro_magnetizzato.pdf'
+    #plt.savefig('%s' % figlabel , format = 'pdf')
+
+    plt.figure()
+    plt.subplot(2, 1, 1)
+    plot_functions.scatter_plot(bins_center, asimmetry, 'dt [$\mu$s]', 'Asimmetry ', dy = asimmetry_err, title = '') 
+    opt_costant, pcov_costant = plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names = ['costant'], param_units=[''], fit_function=functions.costant, p0 = None , x_min = x_min, x_max = x_max)        
+    opt_line, pcov_line = plot_functions.do_fit(bins_center, asimmetry, asimmetry_err, param_names = ['m', 'costant'], param_units=['MHz', ''], fit_function=functions.line, p0 = None , x_min = x_min, x_max = x_max) 
+    plt.subplot(2, 1, 2)
+    residui = (asimmetry - functions.line(bins_center, *opt_line))/asimmetry_err
+    plot_functions.scatter_plot(bins_center, residui, 'dt [$\mu$s]', 'Residui ', dy =asimmetry_err/asimmetry_err, title = '')
+
 
 
     #likelihood test: 
@@ -104,13 +116,16 @@ if __name__ == '__main__' :
     bins_center = bins_center[mask]
     l_likelihood_wave = functions.gauss_log_likelihood(bins_center, asimmetry, asimmetry_err, functions.wave, *opt_wave)    
     l_likelihood_increasing_wave = functions.gauss_log_likelihood(bins_center, asimmetry, asimmetry_err, functions.increasing_wave, *opt_increasing_wave)  
-    l_likelihood_costant = functions.gauss_log_likelihood(bins_center, asimmetry, asimmetry_err, functions.costant, *opt_costant)      
+    l_likelihood_costant = functions.gauss_log_likelihood(bins_center, asimmetry, asimmetry_err, functions.costant, *opt_costant)  
+    l_likelihood_line = functions.gauss_log_likelihood(bins_center, asimmetry, asimmetry_err, functions.line, *opt_line)          
     print('l_likelihood_wave', l_likelihood_wave)
     print('l_likelihood_increasing_wave', l_likelihood_increasing_wave)
     print('l_likelihood_costant', l_likelihood_costant)        
+    print('l_likelihood_line', l_likelihood_line)        
     test_cost_wave = functions.ll_ratio_test_stat(l_likelihood_wave, l_likelihood_costant)
+    test_line_increasing_wave = functions.ll_ratio_test_stat(l_likelihood_increasing_wave, l_likelihood_line)
     test_wave_increasing_wave = functions.ll_ratio_test_stat(l_likelihood_increasing_wave, l_likelihood_wave)
-    print('\n\ntest_cost_wave', test_cost_wave, 'test_wave_increasing_wave', test_wave_increasing_wave )
+    print('\n\ntest_cost_wave', test_cost_wave, '\ntest_wave_increasing_wave', test_wave_increasing_wave, '\ntest_line_increasing_wave', test_line_increasing_wave)
 
     """
     #ALCUNI PLOT DI MONITORAGGIO

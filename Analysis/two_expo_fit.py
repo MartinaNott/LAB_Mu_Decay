@@ -11,7 +11,7 @@ import utilities
 
 def plot_channel_histogram(time_diff, channel_start, channel_stop, n_bins, fit_function = None, param_names = None , param_units = None, p0 = None,  bounds = (-numpy.inf, numpy.inf), save_fig = False, range_hist = None, x_min = 0., label = '', ex_int = (numpy.inf, -numpy.inf)):
     print('\n')
-    title = 'start:%d, stop:%d' %(channel_start, channel_stop)
+    title = 'piombo_ start:%d, stop:%d' %(channel_start, channel_stop)
     legend = '%d' % len(time_diff)
     if fit_function is not None:
         plt.subplot(2, 1, 1)
@@ -20,7 +20,7 @@ def plot_channel_histogram(time_diff, channel_start, channel_stop, n_bins, fit_f
         l_likelihood = functions.gauss_log_likelihood(bins, n, dn, fit_function, *opt)
         plt.subplot(2, 1, 2)
         residuals = n - fit_function(bins, *opt)
-        plot_functions.scatter_plot(bins, residuals, 'time [$\mu$s]', 'residuals', dx = None, dy = dn/residuals,  title = '')       
+        plot_functions.scatter_plot(bins, residuals, 'time [$\mu$s]', 'residuals', dx = None, dy = dn,  title = '')       
     #if save_fig == True:
     #    figlabel = 'dt_%d_%d_%s.pdf' % (channel_start, channel_stop, label)
     #    plt.savefig('%s' % figlabel , format = 'pdf')
@@ -57,31 +57,44 @@ if __name__ == '__main__' :
     param_units = ['1/$\mu$s', '$\mu$s', '']
 
     #PARAMETRI INIZIALI DEL FIT E BOUNDARIES DEI PARAMETRI PER I FIT CON DOPPIA ESPONENZIALE
-    p0 = [1., 0.5, 0.088, 2.2, 0.008]
-    bounds =  (0.0, 0.01, 0.02, 1.5, 0.), (numpy.inf, 0.999, 1.3, 5., 1.)
+    p0 = [1000., 0.45, 0.880, 2.2, 0.008]
+    bounds =  (0.0, 0.42, 0.02, 1.5, 0.), (numpy.inf, 0.48, 1.3, 5., 1000)
     ex_int = (+numpy.inf, -numpy.inf)
-    x_min = 0.24 #0.045# 0.64 
-    x_max = 20.
-    n_bins_up = 100
-    n_bins_down = 100
-    n_bins = 100
+    x_min = 0.02 #0.045# 0.64 
+    fit_min = 0.3
+    x_max = 12.
+    n_bins_up = 300
+    n_bins_down = 300
+    n_bins = 300
        
-    index, channel_diff_up, time_diff_up = utilities.mask_array(ch, time, ch_start, ch_stop_up)   
-    range_hist = (time_diff_up[time_diff_up > 0.].min(), x_max)
+    index, channel_diff_up, time_diff_up = utilities.mask_array(ch, time, ch_start, ch_stop_up)
+    xmin_mask = time_diff_up > x_min
+    index = index[0][xmin_mask]
+    channel_diff_up = channel_diff_up[xmin_mask]
+    time_diff_up = time_diff_up[xmin_mask]
+    range_hist = (x_min, x_max)
 
     #FIT DEI DATI VERSO L'ALTO
-    plt.figure()        
-    l_likelihood_2exp = plot_channel_histogram(time_diff_up, ch_start, ch_stop_up, n_bins = n_bins_up, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0 , bounds = bounds, x_min = x_min, range_hist = range_hist, save_fig=save_fig, ex_int = ex_int)       
+    plt.figure()            
+    l_likelihood_2exp = plot_channel_histogram(time_diff_up, ch_start, ch_stop_up, n_bins = n_bins_up, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0 , bounds = bounds, x_min = fit_min, range_hist = range_hist, save_fig=save_fig, ex_int = ex_int)       
     #l_likelihood_exp = plot_channel_histogram(time_diff_up, ch_start, ch_stop_up, n_bins = n_bins_up, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = None ,  x_min = x_min, range_hist = range_hist, save_fig=save_fig)       
     #test = utilities.ll_ratio_test_stat(l_likelihood_2exp, l_likelihood_exp)
     #print("test: ", test)
-    index, channel_diff_down, time_diff_down = utilities.mask_array(ch, time, ch_start, ch_stop_down)   
-    range_hist = (time_diff_down[time_diff_down > 0.].min(), x_max)
+    plt.subplot(2,1,1)
+    xgrid = numpy.linspace(0., 20., 500)
+    plt.plot(xgrid, functions.two_expo(xgrid, 60, 0.45, 0.880, 2.2, 1.), 'r-')
+    
 
     #FIT DEI DATI VERSO IL BASSO   
-    x_min = 0.24 #0.045# 0.64 
+    index, channel_diff_down, time_diff_down = utilities.mask_array(ch, time, ch_start, ch_stop_down)   
+    xmin_mask = time_diff_down > x_min
+    index = index[0][xmin_mask]
+    channel_diff_down = channel_diff_down[xmin_mask]
+    channel_diff_down = channel_diff_down[xmin_mask]
+    range_hist = (x_min, x_max)
+
     plt.figure()        
-    l_likelihood_2exp = plot_channel_histogram(time_diff_down, ch_start, ch_stop_down, n_bins = n_bins_down, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0, bounds = bounds, x_min = x_min, range_hist = range_hist, save_fig=save_fig, ex_int = ex_int)      
+    l_likelihood_2exp = plot_channel_histogram(time_diff_down, ch_start, ch_stop_down, n_bins = n_bins_down, fit_function = functions.two_expo, param_names = param_names_2exp, param_units = param_units_2exp, p0 = p0, bounds = bounds, x_min = fit_min, range_hist = range_hist, save_fig=save_fig, ex_int = ex_int)      
     #l_likelihood_exp = plot_channel_histogram(time_diff_down, ch_start, ch_stop_down, n_bins = n_bins_down, fit_function = functions.exponential, param_names = param_names, param_units = param_units, p0 = None, x_min = x_min, range_hist = range_hist, save_fig=save_fig) 
     #test = utilities.ll_ratio_test_stat(l_likelihood_2exp, l_likelihood_exp)
     #print("test: ", test)
@@ -90,17 +103,16 @@ if __name__ == '__main__' :
     #AGGREGANDO I DATI: SOPRA E SOTTO    
     ch_stop = numpy.concatenate((channel_diff_up, channel_diff_down)) 
     time_stop = numpy.concatenate((time_diff_up, time_diff_down)) 
-    x_min = 0.254 #0.045# 0.64     
     plt.figure()
     plt.subplot(2, 1, 1)
-    title = ''#'start:%d, stop:%d' %(channel_start, channel_stop)
+    title = 'piombo'#'start:%d, stop:%d' %(channel_start, channel_stop)
     legend = '%d' % len(ch_stop)
     bins, n, dn = plot_functions.plot_histogram(time_stop, "time [$\mu$s]", "", n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True) 
-    opt_two_expo, pcov_two_expo = plot_functions.do_fit(bins, n, dn, param_names_2exp, param_units_2exp, fit_function = functions.two_expo, p0 = p0, bounds = bounds, x_min = x_min, x_max = x_max, ex_int = ex_int) 
+    opt_two_expo, pcov_two_expo = plot_functions.do_fit(bins, n, dn, param_names_2exp, param_units_2exp, fit_function = functions.two_expo, p0 = p0, bounds = bounds, x_min = fit_min, x_max = x_max, ex_int = ex_int) 
     #opt_expo, pcov_expo = plot_functions.do_fit(bins, n, dn, param_names = param_names, param_units = param_units, fit_function = functions.exponential, p0 = None, bounds = (-numpy.inf, numpy.inf), x_min = x_min, x_max = x_max)
     plt.subplot(2, 1, 2)
     residuals_two_expo = n - functions.two_expo(bins, *opt_two_expo)
-    plot_functions.scatter_plot(bins, residuals_two_expo, 'time [$\mu$s]', 'residuals', dx = None, dy = dn/residuals_two_expo,  title = '')       
+    plot_functions.scatter_plot(bins, residuals_two_expo, 'time [$\mu$s]', 'residuals', dx = None, dy = dn,  title = '')       
     #residuals_expo = n - functions.exponential(bins, *opt_expo)
     #plot_functions.scatter_plot(bins, residuals_expo, 'time [$\mu$s]', 'residuals', dx = None, dy = dn/residuals_expo,  title = '')  
 

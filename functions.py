@@ -76,9 +76,6 @@ def ll_ratio_test_stat(loglh_alt, loglh_null):
 def poisson_log_likelihood(bins_center, n, model): 
     def likelihood(model_params):
         y_pred = model(bins_center, *tuple(model_params))
-        #print(model_params)
-        #print(y_pred[:5])
-        #print()
         return numpy.sum(y_pred - n + n * numpy.log(n/y_pred))
     return likelihood
 

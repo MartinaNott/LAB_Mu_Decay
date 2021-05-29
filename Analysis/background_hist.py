@@ -27,8 +27,8 @@ if __name__ == '__main__' :
     ch_down = data[0, :]
     time_down = data[1, :]
         
-    range_hist = (0., 2.)
-    n_bins = 100
+    range_hist = (0., 1.)
+    n_bins = 30
     param_names = ['a_long', 'm_long', 'costant']
     param_units = ['1/$\mu$s', '$\mu$s', '']
     
@@ -39,7 +39,7 @@ if __name__ == '__main__' :
     time_diff_up = time_diff_up[mask]
     print(min(time_diff_up))
     bins, n, dn = two_expo_fit.plot_channel_histogram(time_diff_up, 1, 4, n_bins = n_bins, range_hist = range_hist)
-    #plot_functions.do_fit(bins, n, dn, param_names, param_units, fit_function = functions.exponential, p0 = None)
+    plot_functions.do_fit(bins, n, dn, param_names, param_units, fit_function = functions.exponential, p0 = None)
     index, channel_diff_up, time_diff_up = utilities.mask_array(ch_up, time_up, 1, 3)       
     """
     plt.subplot(2, 1, 2)
@@ -55,7 +55,7 @@ if __name__ == '__main__' :
     time_diff_down = time_diff_down[mask]
     print(min(time_diff_down))
     bins, n, dn = two_expo_fit.plot_channel_histogram(time_diff_down, 5, 7, n_bins = n_bins, range_hist = range_hist)
-    #plot_functions.do_fit(bins, n, dn, param_names, param_units, fit_function = functions.exponential, p0 = None)
+    plot_functions.do_fit(bins, n, dn, param_names, param_units, fit_function = functions.exponential, p0 = None, x_min = 0.030)
     index, channel_diff_down, time_diff_down = utilities.mask_array(ch_down, time_down, 5, 8)   
     """
     plt.subplot(2,1,2)

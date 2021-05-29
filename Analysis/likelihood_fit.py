@@ -10,7 +10,7 @@ import plot_functions
 import functions
 import utilities
 
-def likelihood_fit(time_diff, model, x0=None, bounds=None, title='', legend='', fit_min = -numpy.inf):
+def likelihood_fit(time_diff, model, x0=None, bounds=None, title='', legend='', fit_min = -numpy.inf, range_hist = (0., 20), n_bins = 100):
 
     plt.subplot(2,1,1)
     bins_center, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)  
@@ -22,7 +22,6 @@ def likelihood_fit(time_diff, model, x0=None, bounds=None, title='', legend='', 
     opt = res.x 
     print('OPT_likelihood 2expo:', opt)
     plot_functions.scatter_plot(bins_center, model(bins_center, *opt), "time [$\mu$s]", "", fmt='-')       
-    plt.plot(bins_center,  model(bins_center, *x0), '-r')
     plt.subplot(2,1,2)
     residuals = n - model(bins_center, *opt)
     plot_functions.scatter_plot(bins_center, residuals, "time [$\mu$s]", "res", fmt='.')    
@@ -51,26 +50,24 @@ if __name__ == '__main__' :
 
     param_names_2exp = ['norm', 'fraction', 'm_short', 'm_long', 'costant']
     param_units_2exp = ['$\mu ^-1$s', '', '$\mu$s', '$\mu$s', '$\mu ^-1$s']
-    x0 = numpy.array([2800., 0.6, 0.880, 2.2, 55.35]) #ferro
-    #x0 = numpy.array([1000., 0.450, 0.080, 2.2, 7.35])    
+    x0 = numpy.array([0.5, 0.45, 0.080, 2.2, 0.002]) 
     bounds =  ((0.0, numpy.inf), (0.01, 0.99), (0.020, 1.2), (1.5, 5.), (0., numpy.inf)  )
     n_bins = 100
-    fit_min = 0.5
+    fit_min = 0.0
+    range_hist = (0.000, 20.)
        
     index, channel_diff_up, time_diff_up = utilities.mask_array(ch, time, ch_start, ch_stop_up)   
-    range_hist = (time_diff_up[time_diff_up > 0.].min(), 20.)
     
     title = 'start:%d, stop:%d' %(ch_start, ch_stop_up)
     legend = '%d' % len(time_diff_up)
     plt.figure()
-    likelihood_fit(time_diff_up, model=functions.two_expo_integral, x0=x0, bounds=bounds, title=title, legend=legend)
+    likelihood_fit(time_diff_up, model=functions.two_expo_integral, x0=x0, bounds=bounds, title=title, legend=legend, fit_min = fit_min, range_hist = range_hist)
 
     index, channel_diff_down, time_diff_down = utilities.mask_array(ch, time, ch_start, ch_stop_down)   
-    range_hist = (time_diff_down[time_diff_down > 0.].min(), 20.)
     title = 'start:%d, stop:%d' %(ch_start, ch_stop_down)
     legend = '%d' % len(time_diff_down)
     plt.figure()
-    likelihood_fit(time_diff_down, model=functions.two_expo_integral, x0=x0, bounds=bounds, title=title, legend=legend, fit_min = fit_min)
+    likelihood_fit(time_diff_down, model=functions.two_expo_integral, x0=x0, bounds=bounds, title=title, legend=legend, fit_min = fit_min, range_hist = range_hist)
 
 
     #AGGREGANDO I DATI: SOPRA E SOTTO    
@@ -81,6 +78,9 @@ if __name__ == '__main__' :
     legend = '%d' % len(ch_stop)
     likelihood_fit(time_stop, model=functions.two_expo_integral, x0=x0, bounds=bounds, title=title, legend=legend, fit_min = fit_min)     
 
+
+
+    
     plt.ion()
     plt.show()
 

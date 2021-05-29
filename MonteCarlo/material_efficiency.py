@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(1, '/home/ele/lab/LAB_Mu_Decay')
+sys.path.insert(1, '/home/elo/ele/LAB_Mu_Decay')
 
 import matplotlib
 
@@ -17,14 +17,14 @@ import plot_functions
 
 save_fig = False
 N = 1000000
-z_material = (0., 80.)
+z_material = (0., 10.)
 n_bin = 100
 material_depth = numpy.linspace(*z_material, n_bin) 
 
 element_dict = {'lead' : '../EnergyLoss/range_lead.txt',
                 'aluminium' : '../EnergyLoss/range_aluminium.txt' ,
-                'iron' : '../EnergyLoss/range_iron.txt',
-                'carbon' : '../EnergyLoss/range_carbon.txt'}
+                'iron' : '../EnergyLoss/range_iron.txt'}
+                #'carbon' : '../EnergyLoss/range_carbon.txt'}
 
 E_min = 10
 E_max = 1000        

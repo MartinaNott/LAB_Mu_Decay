@@ -53,6 +53,9 @@ def exponential(x, a, m, costant):
 
 def two_expo(x, norm, fraction, m_short, m_long, costant): 
     return  norm * (fraction * numpy.exp(- x / m_short) + (1. - fraction) * numpy.exp(- x / m_long) ) + costant      
+#def two_expo(x, a1, m_short, a2, m_long, costant):
+ #   return a1 * numpy.exp(-x / m_short) + a2 * numpy.exp(-x/m_long) + costant
+    
     
 def two_expo_gauss(x, norm, fraction, m_short, m_long, costant, gauss_norm, gauss_mean, gauss_sigma):     
     return two_expo(x, norm, fraction, m_short, m_long, costant) + gauss(x, gauss_norm, gauss_mean, gauss_sigma) 
@@ -60,7 +63,7 @@ def two_expo_gauss(x, norm, fraction, m_short, m_long, costant, gauss_norm, gaus
 def two_expo_integral(bin_center, norm, fraction, m_short, m_long, costant):
     t_sup = bin_center + 0.5 * (bin_center[1] - bin_center[0])
     t_inf = bin_center - 0.5 * (bin_center[1] - bin_center[0])
-    return norm * (fraction * m_short * (numpy.exp(-t_inf/m_short) - numpy.exp(-t_sup/m_short)) + (1.- fraction) * m_long * (numpy.exp(-t_inf/m_long) - numpy.exp(-t_sup/m_long))) + costant * (t_sup - t_inf)
+    return norm * 1000 * (fraction * m_short * (numpy.exp(-t_inf/m_short) - numpy.exp(-t_sup/m_short)) + (1.- fraction) * m_long * (numpy.exp(-t_inf/m_long) - numpy.exp(-t_sup/m_long))) + costant * (t_sup - t_inf)
 
 
 def gauss_log_likelihood(x, y, sigma, model, *model_params):
@@ -76,13 +79,29 @@ def ll_ratio_test_stat(loglh_alt, loglh_null):
 def poisson_log_likelihood(bins_center, n, model): 
     def likelihood(model_params):
         y_pred = model(bins_center, *tuple(model_params))
-        return numpy.sum(y_pred - n + n * numpy.log(n/y_pred))
+        return numpy.sum(y_pred - n + n * (numpy.log(n) - numpy.log(y_pred)))
     return likelihood
 
-
-
-
-
+def two_expo_integral_jacobian(bin_center, n):
+    bin_width = bin_center[1] - bin_center[0]
+    print('bin_width = ', bin_width)
+    def jacobian(par):
+        norm, fraction, m_short, m_long, costant = par[0], par[1], par[2], par[3], par[4]
+        pred = two_expo_integral(bin_center, norm, fraction, m_short, m_long, costant)
+        t_sup = bin_center + 0.5 * bin_width
+        t_inf = bin_center - 0.5 * bin_width
+        exp_sup_short = numpy.exp(-t_sup/m_short)
+        exp_inf_short = numpy.exp(-t_inf/m_short)
+        exp_sup_long =  numpy.exp(-t_sup/m_long)
+        exp_inf_long =  numpy.exp(-t_inf/m_long)
+        
+        first = 1000 * (fraction * m_short * (exp_inf_short - exp_sup_short) + (1.- fraction) * m_long * (exp_inf_long - exp_sup_long))
+        second = 1000 * (norm * m_short * (exp_inf_short - exp_sup_short) - norm * m_long * (exp_inf_long - exp_sup_long))
+        third = 1000 * (norm * fraction * (exp_inf_short - exp_sup_short) + norm * fraction * (t_inf/m_short * exp_inf_short - t_sup/m_short * exp_sup_short ))
+        fourth = 1000 * (norm * (1. - fraction) * (exp_inf_long- exp_sup_long) + norm * (1. - fraction) * (t_inf/m_long * exp_inf_long - t_sup/m_long * exp_sup_long))
+        fifth = (t_sup - t_inf)
+        return numpy.sum((1. - n/pred) * numpy.array([first, second, third, fourth, fifth]), axis=1)
+    return jacobian
 
 
 

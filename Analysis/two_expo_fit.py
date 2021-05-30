@@ -9,24 +9,25 @@ import plot_functions
 import functions
 import utilities
 
-def plot_channel_histogram(time_diff, channel_start, channel_stop, n_bins, fit_function = None, param_names = None , param_units = None, p0 = None,  bounds = (-numpy.inf, numpy.inf), save_fig = False, range_hist = None, x_min = 0., label = '', ex_int = (numpy.inf, -numpy.inf)):
+def plot_channel_histogram(time_diff, channel_start, channel_stop, n_bins, fit_function = None, param_names = None , param_units = None, p0 = None,  bounds = (-numpy.inf, numpy.inf), save_fig = False, range_hist = None, x_min = 0., label = '', ex_int = (numpy.inf, -numpy.inf), title = ''):
     print('\n')
-    title = 'piombo_ start:%d, stop:%d' %(channel_start, channel_stop)
-    legend = '%d' % len(time_diff)
+    legend = '%s%d eventi' % (label, len(time_diff))
+    bin_width = int(1000 * (range_hist[1]- range_hist[0])/n_bins)
+    ylabel = 'ev./%d ns ' % (bin_width)
     if fit_function is not None:
         plt.subplot(2, 1, 1)
-        bins, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)  
+        bins, n, dn = plot_functions.plot_histogram(time_diff, "$\Delta t$ [$\mu$s]", ylabel, n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)  
         opt, pcov = plot_functions.do_fit(bins, n, dn, param_names, param_units, fit_function = fit_function, p0 = p0, bounds = bounds, x_min = x_min, ex_int = ex_int)
         l_likelihood = functions.gauss_log_likelihood(bins, n, dn, fit_function, *opt)
         plt.subplot(2, 1, 2)
         residuals = n - fit_function(bins, *opt)
-        plot_functions.scatter_plot(bins, residuals, 'time [$\mu$s]', 'residuals', dx = None, dy = dn,  title = '')       
+        plot_functions.scatter_plot(bins, residuals, "$\Delta t$ [$\mu$s]", 'Res.', dx = None, dy = dn,  title = '')       
     #if save_fig == True:
     #    figlabel = 'dt_%d_%d_%s.pdf' % (channel_start, channel_stop, label)
     #    plt.savefig('%s' % figlabel , format = 'pdf')
         return  l_likelihood       
     else:
-        bins, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)  
+        bins, n, dn = plot_functions.plot_histogram(time_diff, "$\Delta t$ [$\mu$s]", ylabel, n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)  
         return bins, n, dn
 
 description = ''

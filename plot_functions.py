@@ -53,7 +53,7 @@ def plot_histogram(x, xlabel, ylabel, n_bins = None, range = None, title = '', l
     return bins, n, dn
 
 
-def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds = (-numpy.inf, numpy.inf), x_min = -numpy.inf, x_max = numpy.inf, ex_int = (numpy.inf, -numpy.inf) ): 
+def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds = (-numpy.inf, numpy.inf), x_min = -numpy.inf, x_max = numpy.inf, ex_int = (numpy.inf, -numpy.inf), show=True, draw_on_points = False): 
   mask = (x > x_min ) * (x < x_max) * (( x < ex_int[0]) | (x > ex_int[1]))
   x = x[mask]
   y = y[mask]
@@ -64,11 +64,15 @@ def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds =
   chi2 = chi2.sum()
   ndof = len(y)-len(opt)  
   
-  legend = fit_legend(opt, numpy.sqrt(pcov.diagonal()), param_names, param_units, chi2, ndof)
-  bin_grid = numpy.linspace(x.min(), x.max(), 1000)  
-  plt.plot(bin_grid, fit_function(bin_grid, *opt), label = legend)        
-  plt.legend() 
-  print("LEGEND:", legend)
+  if show:
+      legend = fit_legend(opt, numpy.sqrt(pcov.diagonal()), param_names, param_units, chi2, ndof)
+      if draw_on_points is True: 
+          bin_grid = x
+      else:    
+          bin_grid = numpy.linspace(x.min(), x.max(), 1000)  
+      plt.plot(bin_grid, fit_function(bin_grid, *opt), label = legend)        
+      plt.legend() 
+      print("LEGEND:", legend)
   return opt, pcov
   
 def scatter_plot(x, y, xlabel, ylabel, dx = None, dy = None,  title = '', legend = '', fmt='.'):

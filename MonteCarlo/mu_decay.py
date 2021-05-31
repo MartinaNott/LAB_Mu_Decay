@@ -35,18 +35,23 @@ def mu_decay(num_events, pdf, t_min, t_max, *args):
 
 
 
-def likelihood_fit(model, time_diff=None, bin_center=None, n=None, jacobian = None,  x0=None, bounds=None, title='', legend='', fit_min = -numpy.inf, range_hist = (0., 20), n_bins = 100):
-
-    plt.subplot(2,1,1)
+def likelihood_fit(model, param_names, param_units, time_diff=None, bin_center=None, n=None, jacobian = None,  x0=None, bounds=None, title='', legend='', fit_min = -numpy.inf, range_hist = (0., 20), n_bins = 100, output_file = ''):
+    
+    plt.subplot(3,1,(1,2))
     if time_diff is not None: 
-        bin_center, n, dn = plot_functions.plot_histogram(time_diff, "time [$\mu$s]", "", n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)  
+        bin_width = 100 #int(1000 * (range_hist[1]- range_hist[0])/n_bins)
+        ylabel = 'ev./%d ns ' % (bin_width)
+        bin_center, n, dn = plot_functions.plot_histogram(time_diff, "$\Delta t$ [$\mu$s]", ylabel, n_bins = n_bins, range = range_hist, title = title, legend = legend, fmt = '.b', as_scatter = True)  
     else: 
+        bin_width = int(1000 * (bin_center[2]- bin_center[1]))
+        ylabel = 'ev./%d ns' % (bin_width)
         dn = numpy.sqrt(n)
-        plot_functions.scatter_plot(bin_center, n, "time [$\mu$s]", "", dy = dn , title = title, fmt = '.b')    
+        plot_functions.scatter_plot(bin_center, n, "$\Delta t$ [$\mu$s]", ylabel, dy = dn , title = title, fmt = '.b')    
     
     mask = bin_center >  fit_min   
     bin_center = bin_center[mask]
     n = n[mask]
+    dn = dn[mask]
     minus_two_ll = functions.poisson_log_likelihood(bin_center, n, model)
     if jacobian is not None:
         jac = jacobian(bin_center, n)
@@ -55,117 +60,164 @@ def likelihood_fit(model, time_diff=None, bin_center=None, n=None, jacobian = No
     res = minimize(minus_two_ll, x0 = x0, bounds = bounds , method = 'BFGS', jac = jac, options={'disp' : True})
     opt = res.x 
     pcov = res.hess_inv
-    print('OPT_likelihood 2expo:', opt)
-    print(numpy.sqrt(numpy.diagonal(pcov)/len(n)))
-    plot_functions.scatter_plot(bin_center, model(bin_center, *opt), "time [$\mu$s]", "", fmt='-')   
-    plt.subplot(2,1,2)
+    L = minus_two_ll(opt)   
+    param_results = plot_functions.fit_legend(opt, numpy.sqrt(pcov.diagonal()), param_names, param_units)
+ 
+    plot_functions.scatter_plot(bin_center, model(bin_center, *opt), "$\Delta t$ [$\mu$s]", ylabel, fmt='-', legend = param_results, title = title)   
+    
+    plt.subplot(3,1,3)
     residuals = n - model(bin_center, *opt)
-    plot_functions.scatter_plot(bin_center, residuals, "time [$\mu$s]", "res", fmt='.')    
-    return minus_two_ll, bin_center, n, dn
+    plot_functions.scatter_plot(bin_center, residuals, "$\Delta t$ [$\mu$s]", "res", fmt='.')    
+ 
+    if output_file is not '': 
+        param_results = param_results + '\n\n'
+        with open(output_file, 'a') as of:
+            of.write(param_results)
+    return L, bin_center, n, dn
 
 description = ''
 options_parser = argparse.ArgumentParser(description = description)
 options_parser.add_argument('--number_events', '-n', default=1000, type=int, help='')
-options_parser.add_argument('--output_file', '-o', default='None', type=str, help='')
+options_parser.add_argument('--output_file', '-o', default='', type=str, help='')
 
 
 if __name__ == '__main__' :   
-    numpy.random.seed(3)
+    numpy.random.seed(7)
         
     start_time = time.time()   
     options = vars(options_parser.parse_args())  
     N = options['number_events']
-    output_file_events = options['output_file']
+    output_file = options['output_file']
 
-    param_names_2exp = ['norm', 'fraction', 'm_short', 'm_long', 'costant']
-    param_units_2exp = ['$\mu ^-1$s', '', '$\mu$s', '$\mu$s', '$\mu ^-1$s']
+    if output_file is not '':
+        notes = 'Prima i risultati del fit del MC con noise, poi i risultati del fit dopo aver sottratto il noise.'
+        with open(output_file, 'a') as of:
+            of.write(notes)    
+
+    param_names_2exp = ['norm', 'fraction', '$\\tau_s$', '$\\tau_l$', 'costant']
+    param_units_2exp = ['$\mu s^-1$', '', '$\mu$s', '$\mu$s', '$\mu s^-1$']
+    param_names_exp = ['N', '$\\tau$', 'costant']
+    param_units_exp = ['$\mu s^-1$', '$\mu$s', '$\mu s^-1$']
     
     #norm, fraction, m_short, m_long, costant
-    p0_gen = [1.586, 0.50054369 , 0.088712, 1.97491405, 0.007]
+    p0_gen = [1.586, 0.50054369 , 0.230, 2.17491405, 0.007, 0.06, 2.71, 0.4, 0.01, 4.5, 0.2, 0.021, 8., 0.2]
     n_bins = 150
     fit_min = 0.000
 
-    """
-    data_file = 'data/run11_mudecay.dat', 'data/run9_mudecay.dat' #10512 eventi up e 1657 eventi down 
-    data = numpy.hstack([numpy.loadtxt(_file, unpack=True) for _file in data_file])
-    ch = data[0, :]
-    time = data[1, :]
+
+    norm_noise = 2.39 * 1366595/85227 #3291430/85227
+    tau_noise = 0.106
+    cost_noise = 1.2
+    N_noise = int(100 * 1366595/85227)
+    N_events = N - N_noise
+    p0_noise_gen = [norm_noise, tau_noise, cost_noise]
+    dt = mu_decay(N_events, functions.two_expo_n_gauss, 0., 100., *p0_gen)
+    dt_noise = mu_decay(N_noise, functions.exponential, 0., 100., *p0_noise_gen)
+    dt = numpy.concatenate((dt, dt_noise))
+
+
+    #MONTE CARLO CON NOISE    
+    title = 'Alluminio - %d eventi' %N
+    plt.figure(figsize = [6.4, 7.])
+    p0 = [1.44, 0.58054369 , 0.200, 2.197197491405, 32.]
+    minus_two_ll, bin_center, n, dn = likelihood_fit( model = functions.two_expo_integral, param_names = param_names_2exp, param_units = param_units_2exp, 
+                    time_diff= dt, jacobian = functions.two_expo_integral_jacobian, 
+                    n_bins = n_bins, x0 = p0, bounds = None, fit_min = fit_min,  
+                    range_hist = (0., 15.), title =title, output_file = output_file)
+
+    plt.subplot(3,1,(1,2))
+    bounds =  (0.0, 0.01, 0.02, 1.5, 0.), (numpy.inf, 1., 1.2, 5., 1000)
+    opt, pcov = plot_functions.do_fit(bin_center, n, dn, param_names=param_names_2exp, param_units=param_units_2exp, fit_function = functions.two_expo_integral, p0 = p0, show=True, bounds = bounds, draw_on_points=True, output_file = output_file)
+
+    #MONTE CARLO SOTTRAENDO NOISE        
+    plt.figure(figsize = [6.4, 7.])
+    n = n - functions.exponential(bin_center, norm_noise, tau_noise, cost_noise)
+    mask = (n > 0.)
+    bin_center = bin_center[mask]
+    n = n[mask]
+    dn = numpy.sqrt(n)
+    minus_two_ll_two_expo, bin_center, n, dn = likelihood_fit( model = functions.two_expo_integral, param_names = param_names_2exp, param_units = param_units_2exp, 
+                    bin_center=bin_center, n = n, jacobian = 
+                    functions.two_expo_integral_jacobian, 
+                    n_bins = n_bins, x0 = p0, bounds = None, fit_min = fit_min,  
+                    range_hist = (0., 15.), title =title, output_file = output_file)
+    
+    plt.subplot(3,1,(1,2))
+    opt, pcov = plot_functions.do_fit(bin_center, n, dn, param_names=param_names_2exp, param_units=param_units_2exp, fit_function = functions.two_expo_integral, p0 = p0, show=True, bounds = bounds, draw_on_points=True, output_file = output_file)
+
+    #MONTE CARLO SOTTRAENDO NOISE fittato con un exp   
+    plt.figure(figsize = [6.4, 7.])
+    p0_one_exp = [6000., 2.2, 0.7]
+    minus_two_ll_expo, bin_center, n, dn = likelihood_fit( model = functions.expo_integral, param_names=param_names_exp, param_units=param_units_exp,
+                    bin_center=bin_center, n = n, jacobian = 
+                    functions.expo_integral_jacobian, 
+                    n_bins = n_bins, x0 = p0_one_exp, bounds = None, fit_min = fit_min,  
+                    range_hist = (0., 15.), title =title, output_file = output_file)
+    
+    plt.subplot(3,1,(1,2))
+    opt, pcov = plot_functions.do_fit(bin_center, n, dn, param_names=param_names_exp, param_units=param_units_exp, fit_function = functions.expo_integral, p0 = p0_one_exp, show=True, draw_on_points=True, output_file = output_file)
+
+    print('\n\n\nminus_two_ll_two_expo, minus_two_ll_expo', minus_two_ll_two_expo, minus_two_ll_expo)
+    test = minus_two_ll_expo - minus_two_ll_two_expo
+    print("\ntest MC dopo aver sottratto il noise: ", test, '\n')
+
+    
+    
+    data_file = 'data/run15_mudecay.dat'
+    ch, time = numpy.loadtxt(data_file, unpack=True)
+    #data = numpy.hstack([numpy.loadtxt(_file, unpack=True) for _file in data_file])
+    #ch = data[0, :]
+    #time = data[1, :]
     index, channel_diff_up, time_diff_up = utilities.mask_array(ch, time, 5, 7)   
     index, channel_diff_down, time_diff_down = utilities.mask_array(ch, time, 5, 8)   
-    time_diff = numpy.concatenate((time_diff_up, time_diff_down))
-    
+
     mask_start = ch == 5
     a = numpy.ones(len(ch))
     a = a[mask_start]
-    print('start down', len(a)) 
-    bins = numpy.linspace(0., 15., n_bins + 1)
-    x = 0.5 * (bins[1:] + bins[:-1])
-    """
-    norm_noise = 2.39 * 3291430/85227 #3291430/85227
-    tau_noise = 0.106
-    cost_noise = 1.2
-    N_noise = int(100 * 3291430/85227)
-    N_events = N - N_noise
-    p0_noise_gen = [norm_noise, tau_noise, cost_noise]
-    dt = mu_decay(N_events, functions.two_expo, 0., 100., *p0_gen)
-    dt_noise = mu_decay(N_noise, functions.exponential, 0., 100., *p0_noise_gen)
-    dt = numpy.concatenate((dt, dt_noise))
-    #dt_noise = mu_decay(230, functions.two_expo, 0.075, 0.2250, *p0_gen)
-    #dt = numpy.concatenate((dt, dt_noise))
+    print('START down', len(a)) 
+    print('events ', len(time_diff_up)+ len(time_diff_down))
 
-        
-    plt.figure()
-    p0 = [6.2, 0.50054369 , 0.0882712, 1.97197491405, 0.7]
-    minus_two_ll, bin_center, n, dn = likelihood_fit( model = functions.two_expo_integral,
-                    time_diff= dt, jacobian = functions.two_expo_integral_jacobian, 
-                    n_bins = n_bins, x0 = p0, bounds = None, fit_min = fit_min,  
-                    range_hist = (0., 15.), title ='MC, con noise')
+    data_file = 'data/run11_mudecay.dat'
+    ch, time = numpy.loadtxt(data_file, unpack=True)
+    mask_start = ch == 1
+    a = numpy.ones(len(ch))
+    a = a[mask_start]
+    print('START down', len(a)) 
+    index, channel_diff_up_11, time_diff_up_11 = utilities.mask_array(ch, time, 1, 4)   
+    index, channel_diff_down_11, time_diff_down_11 = utilities.mask_array(ch, time, 1, 3)   
+    time_diff_up = numpy.concatenate((time_diff_up, time_diff_up_11))
+    time_diff_down = numpy.concatenate((time_diff_down, time_diff_down_11))    
+    print('events ', len(time_diff_up)+ len(time_diff_down))
+    time_diff = numpy.concatenate((time_diff_up, time_diff_down))
 
-    plt.subplot(2,1,1)
-    p0 = [7, 0.50054369 , 0.0882712, 2.197491405, 0.7]
-    bounds =  (0.0, 0.01, 0.02, 1.5, 0.), (numpy.inf, 1., 0.300, 5., 1000)
-    opt, pcov = plot_functions.do_fit(bin_center, n, dn, param_names=param_names_2exp, param_units=param_units_2exp, fit_function = functions.two_expo_integral, p0 = p0, show=True, bounds = bounds, draw_on_points=True)
-    print(pcov)
-
-    """
-    plt.figure()
-    n = n - functions.exponential(bin_center, norm_noise, tau_noise, cost_noise)
-    minus_two_ll, bin_center, n, dn = likelihood_fit( model = functions.two_expo_integral,
-                    bin_center=bin_center, n = n, jacobian = 
-                    functions.two_expo_integral_jacobian, 
-                    n_bins = n_bins, x0 = p0, bounds = None, fit_min = 0.10,  
-                    range_hist = (0., 20.), title ='MC, senza noise')
-    
-    plt.figure()
-    plt.title('confronto')
-    plot_functions.plot_histogram(dt, '', '', n_bins = n_bins, range = (0., 15.), title = '', legend = 'mc', fmt = '.g', as_scatter = True)    
-    plot_functions.scatter_plot(x, functions.exponential(x, norm_noise, tau_noise, cost_noise), '', '', legend ='noise' )    
-    n, bins = numpy.histogram(time_diff_up,  bins = n_bins, range = (0., 15.))
-    bin_center = 0.5 * (bins[1:] + bins[:-1])    
-    plot_functions.scatter_plot(bin_center, n, '', '' , fmt ='.b', legend = ' dati')    
+ 
+    #DATI 
+    title = 'Alluminio - %d eventi' %len(time_diff_up)
+    plt.figure(figsize = [6.4, 7.])
+    plt.subplot(3,1,(1,2))
+    minus_two_ll, bin_center, n, dn = likelihood_fit(model = functions.two_expo_integral, param_names = param_names_2exp, param_units = param_units_2exp, 
+                   time_diff = time_diff_up,
+                   jacobian = functions.two_expo_integral_jacobian, n_bins = n_bins, x0 = p0,
+                   fit_min = fit_min,  range_hist = (0., 15.), output_file = output_file , title=title)
+    plt.subplot(3,1,(1,2))
+    opt, pcov = plot_functions.do_fit(bin_center, n, dn, param_names=param_names_2exp, param_units=param_units_2exp, fit_function = functions.two_expo_integral, p0 = p0, show=True, bounds = bounds, draw_on_points=True, output_file = output_file)
 
     n = n - functions.exponential(bin_center, norm_noise, tau_noise, cost_noise)
     mask = (n > 0.)
     bin_center = bin_center[mask]
     n = n[mask]
-
-    p0 = [10, 0.7 , 0.1, 2., 1.]
-    plt.figure()
-    plt.subplot(2,1,1)
-    plt.title('dati sottratti')
-    likelihood_fit(model = functions.two_expo_integral, n=n, bin_center = bin_center,
+    
+    #DATI SOTTRATTI DAL NOISE
+    plt.figure(figsize = [6.4, 7.])
+    plt.subplot(3,1,(1,2))
+    minus_two_ll, bin_center, n, dn = likelihood_fit(model = functions.two_expo_integral, param_names = param_names_2exp, param_units = param_units_2exp,  n=n, bin_center = bin_center,
                    jacobian = functions.two_expo_integral_jacobian, n_bins = n_bins, x0 = p0,
-                   fit_min = fit_min,  range_hist = (0., 15.) )
-
-    p0 = [10, 0.7 , 0.1, 2., 1.]
-    plt.figure()
-    plt.title('dati non  sottratti')
-    plt.subplot(2,1,1)
-    likelihood_fit(model = functions.two_expo_integral, time_diff = time_diff_up,
-                   jacobian = functions.two_expo_integral_jacobian, n_bins = n_bins, x0 = p0,
-                   fit_min = 0.06,  range_hist = (0., 15.) )
-
-    """
+                   fit_min = fit_min,  range_hist = (0., 15.), output_file = output_file , title = title)
+    print('len(n), len(dn)', len(n), len(dn))
+    plt.subplot(3,1,(1,2))
+    opt, pcov = plot_functions.do_fit(bin_center, n, dn, param_names=param_names_2exp, param_units=param_units_2exp, fit_function = functions.two_expo_integral, p0 = p0, show=True, bounds = bounds, draw_on_points=True, output_file = output_file, x_min = fit_min)
+    
+    
     plt.ion()
     plt.show()  
           

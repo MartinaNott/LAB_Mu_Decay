@@ -29,7 +29,7 @@ if __name__ == '__main__' :
         
     range_hist = (0., 15.)
     n_bins = 150
-    param_names = ['N', '$T$', 'costant']
+    param_names = ['N', '$\\tau$', 'costant']
     param_units = ['', '$\mu$s', '']
     
     mask_start = ch_down == 5

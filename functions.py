@@ -53,13 +53,15 @@ def exponential(x, a, m, costant):
 
 def two_expo(x, norm, fraction, m_short, m_long, costant): 
     return  norm * (fraction * numpy.exp(- x / m_short) + (1. - fraction) * numpy.exp(- x / m_long) ) + costant      
-#def two_expo(x, a1, m_short, a2, m_long, costant):
- #   return a1 * numpy.exp(-x / m_short) + a2 * numpy.exp(-x/m_long) + costant
-    
     
 def two_expo_gauss(x, norm, fraction, m_short, m_long, costant, gauss_norm, gauss_mean, gauss_sigma):     
     return two_expo(x, norm, fraction, m_short, m_long, costant) + gauss(x, gauss_norm, gauss_mean, gauss_sigma) 
 
+def expo_integral(bin_center, norm, m, costant):
+    t_sup = bin_center + 0.5 * (bin_center[1] - bin_center[0])
+    t_inf = bin_center - 0.5 * (bin_center[1] - bin_center[0])       
+    return norm * (numpy.exp(-t_inf/m) - numpy.exp(-t_sup/m)) + costant * (t_sup - t_inf )
+    
 def two_expo_integral(bin_center, norm, fraction, m_short, m_long, costant):
     t_sup = bin_center + 0.5 * (bin_center[1] - bin_center[0])
     t_inf = bin_center - 0.5 * (bin_center[1] - bin_center[0])
@@ -104,11 +106,27 @@ def two_expo_integral_jacobian(bin_center, n):
     return jacobian
 
 
+def expo_integral_jacobian(bin_center, n):
+    bin_width = bin_center[1] - bin_center[0]
+    print('bin_width = ', bin_width)
+    def jacobian(par):
+        norm, m, costant = par[0], par[1], par[2]
+        pred = expo_integral(bin_center, norm, m, costant)
+        t_sup = bin_center + 0.5 * bin_width
+        t_inf = bin_center - 0.5 * bin_width
+        exp_sup = numpy.exp(-t_sup/m)
+        exp_inf = numpy.exp(-t_inf/m)
+        
+        first = 1000 * (exp_inf - exp_sup )
+        second = 1000 * norm * (t_inf/ m**2 * exp_inf - t_sup /m**2 * exp_sup ) 
+        third = (t_sup - t_inf)
+        return numpy.sum((1. - n/pred) * numpy.array([first, second, third]), axis=1)
+    return jacobian
 
 
 
-
-
+def two_expo_n_gauss(x, norm, fraction, m_short, m_long, costant, gauss_norm1, gauss_mean1, gauss_sigma1, gauss_norm2, gauss_mean2, gauss_sigma2, gauss_norm3, gauss_mean3, gauss_sigma3 ):     
+    return two_expo(x, norm, fraction, m_short, m_long, costant) + gauss(x, gauss_norm1, gauss_mean1, gauss_sigma1) + gauss(x, gauss_norm2, gauss_mean2, gauss_sigma2) + gauss(x, gauss_norm3, gauss_mean3, gauss_sigma3) 
 
 
 

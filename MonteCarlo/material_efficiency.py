@@ -15,15 +15,15 @@ import functions
 import constants
 import plot_functions
 
-save_fig = False
+save_fig = True
 N = 1000000
 z_material = (0., 10.)
 n_bin = 100
 material_depth = numpy.linspace(*z_material, n_bin) 
 
-element_dict = {'lead' : '../EnergyLoss/range_lead.txt',
-                'aluminium' : '../EnergyLoss/range_aluminium.txt' ,
-                'iron' : '../EnergyLoss/range_iron.txt'}
+element_dict = {'Piombo' : '../EnergyLoss/range_lead.txt',
+                'Alluminio' : '../EnergyLoss/range_aluminium.txt' ,
+                'Ferro' : '../EnergyLoss/range_iron.txt'}
                 #'carbon' : '../EnergyLoss/range_carbon.txt'}
 
 E_min = 10
@@ -88,19 +88,21 @@ for element in element_dict:
     epsilon = epsilon_electron * epsilon_muon
     
 
-    title = '%s sp. piatto (%d-%d Mev)' % (element, E_min, E_max)    
+    electron_e_mean_range = spline_electron(37.25)  
+
+    title = '%s' % (element)    
     plt.figure()
-    plt.plot(material_depth, epsilon_electron, '-r', label = 'electron' )
-    plt.plot(material_depth, epsilon_muon, '-b', label = 'muon')
-    plot_functions.set_plot("material_depth [cm]", "$N_i$/$N_{tot}$", title = title )
-    
+    plt.plot(material_depth, epsilon_electron, '-r', label = 'Elettroni' )
+    plt.plot(material_depth, epsilon_muon, '-b', label = 'Muoni')
+    plot_functions.set_plot("$\Delta x$ [cm]", "$N_i$/$N_{tot}$", title = title )
     if save_fig ==True:    
       plt.savefig('mu_ele_epsilon_%s.pdf' % element, format = 'pdf')    
     
     plt.figure()
+    title = '%s' % (element)    
     plt.plot(material_depth, epsilon, '-')
-    plot_functions.set_plot("material_depth [cm]", "$\epsilon$", title = title )
-    
+    plot_functions.set_plot("$\Delta x$ [cm]", "$\epsilon$", title = title )
+    plt.axvline(electron_e_mean_range, color='g')    
     if save_fig ==True:    
       plt.savefig('epsilon_%s.pdf' % element, format = 'pdf')    
      
@@ -112,7 +114,6 @@ for element in element_dict:
     
     if save_fig ==True:    
       plt.savefig('epsilon_%s.pdf' % element, format = 'pdf')    
-
 
 
 plt.ion()

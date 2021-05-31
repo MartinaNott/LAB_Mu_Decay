@@ -19,11 +19,12 @@ def set_plot(xlabel, ylabel, title = ''):
   plt.legend() 
   return  
 
-def fit_legend(param_values, param_errors, param_names, param_units, chi2, ndof):   
+def fit_legend(param_values, param_errors, param_names, param_units, chi2=None, ndof=None):   
   legend = ''
   for (name, value, error, unit) in zip(param_names, param_values, param_errors, param_units):
       legend += ("%s: %s %s\n" % (name, utilities.format_value_error(value, error), unit))
-  legend += ("$\chi^2$/d.o.f.=%.2f/%d "% (chi2, ndof))
+  if chi2 is not None: 
+      legend += ("$\chi^2$/d.o.f.=%.2f/%d "% (chi2, ndof))
   return legend
 
 
@@ -53,7 +54,7 @@ def plot_histogram(x, xlabel, ylabel, n_bins = None, range = None, title = '', l
     return bins, n, dn
 
 
-def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds = (-numpy.inf, numpy.inf), x_min = -numpy.inf, x_max = numpy.inf, ex_int = (numpy.inf, -numpy.inf), show=True, draw_on_points = False): 
+def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds = (-numpy.inf, numpy.inf), x_min = -numpy.inf, x_max = numpy.inf, ex_int = (numpy.inf, -numpy.inf), show=True, draw_on_points = False, output_file = ''): 
   mask = (x > x_min ) * (x < x_max) * (( x < ex_int[0]) | (x > ex_int[1]))
   x = x[mask]
   y = y[mask]
@@ -73,6 +74,11 @@ def do_fit(x, y, dy, param_names, param_units, fit_function, p0 = None, bounds =
       plt.plot(bin_grid, fit_function(bin_grid, *opt), label = legend)        
       plt.legend() 
       print("LEGEND:", legend)
+
+  if output_file is not '': 
+        legend = legend + '\n'
+        with open(output_file, 'a') as of:
+          of.write(legend)
   return opt, pcov
   
 def scatter_plot(x, y, xlabel, ylabel, dx = None, dy = None,  title = '', legend = '', fmt='.'):
